@@ -1,0 +1,13 @@
+tr span.visibleOnHover {
+    display: none;
+}
+
+tr:hover span.visibleOnHover {
+    display: inline;
+    position: absolute;
+    z-index: 10;
+}
+
+tr:hover span.visibleOnHover svg {
+    font-size: 1.1rem;
+}
