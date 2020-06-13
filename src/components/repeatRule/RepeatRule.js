@@ -20,10 +20,6 @@ export default class RepeatRule extends React.Component {
             selection: inProps.repeatRule ? inProps.repeatRule : menuItemDoesNotRepeat, 
             startDate: inProps.startDate
         };
-        this.onAddEditRepeatRuleDialogOpen = this.onAddEditRepeatRuleDialogOpen.bind( this );
-        this.onAddEditRepeatRuleDialogClose = this.onAddEditRepeatRuleDialogClose.bind( this );
-        this.onChange = this.onChange.bind( this );
-        this.onSaveRepeatRule = this.onSaveRepeatRule.bind( this );
     }
 
     createMenuItems() {
@@ -53,11 +49,11 @@ export default class RepeatRule extends React.Component {
         return theQuickRules;
     }
 
-    onAddEditRepeatRuleDialogOpen() { this.setAddEditRepeatRuleDialogVisibility( true ); }
-    onAddEditRepeatRuleDialogClose() { this.setAddEditRepeatRuleDialogVisibility( false ); } 
-    onChange( inEvent ) { this.selectRule( inEvent.target.value );  }
+    onAddEditRepeatRuleDialogOpen = () => this.setAddEditRepeatRuleDialogVisibility( true );
+    onAddEditRepeatRuleDialogClose = () => this.setAddEditRepeatRuleDialogVisibility( false );
+    onChange = inEvent => this.selectRule( inEvent.target.value );
 
-    onSaveRepeatRule( inRepeatRule ) {
+    onSaveRepeatRule = inRepeatRule => {
         this.onAddEditRepeatRuleDialogClose();
         this.selectRule( inRepeatRule );
     }

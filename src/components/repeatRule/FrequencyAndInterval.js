@@ -18,16 +18,14 @@ export default class FrequencyAndInterval extends React.Component {
         }
         this.intervalLabelStyle = { marginLeft: '0px' };
         this.intervalStyle = { paddingLeft: '20px', paddingBottom: '10px', paddingRight: '20px' };
-        this.onChangeFrequency = this.onChangeFrequency.bind( this );
-        this.onChangeInterval = this.onChangeInterval.bind( this );
     }
 
-    onChangeFrequency( inEvent ) {
+    onChangeFrequency = inEvent => {
         this.setState( { frequency: inEvent.target.value } );
         this.props.onChangeFrequency && this.props.onChangeFrequency( inEvent.target.value );
     }
 
-    onChangeInterval( inEvent ) {
+    onChangeInterval = inEvent => {
         this.setState( { interval: inEvent.target.value } );
         this.props.onChangeInterval && this.props.onChangeInterval( inEvent.target.value );
     }

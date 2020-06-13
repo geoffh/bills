@@ -15,9 +15,6 @@ export default class End extends React.Component {
     constructor( inProps ) {
         super( inProps );
         this.state = { end: inProps.end };
-        this.onChangeCount = this.onChangeCount.bind( this );
-        this.onChangeType = this.onChangeType.bind( this );
-        this.onChangeUntil = this.onChangeUntil.bind( this );
     }
 
     isEndOnDate() { return RepeatRuleService.isEndOnDate( this.state.end.type ) };
@@ -29,21 +26,21 @@ export default class End extends React.Component {
         this.props.onChange( inEnd );
     }
 
-    onChangeCount( inEvent ) {
+    onChangeCount = inEvent => {
         const theEnd = this.state.end;
         theEnd.count = inEvent.target.value;
         this.onChange( theEnd );
     }
 
-    onChangeType( inEvent ) {
+    onChangeType = inEvent => {
         const theEnd = this.state.end;
         theEnd.type = inEvent.target.value;
         this.onChange( theEnd );
     }
 
-    onChangeUntil( inDate ) {
+    onChangeUntil = inDate => {
         const theEnd = this.state.end;
-        theEnd.date = inDate;
+        theEnd.until = inDate;
         this.onChange( theEnd );
     }
 

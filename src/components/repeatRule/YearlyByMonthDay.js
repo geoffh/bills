@@ -8,8 +8,6 @@ export default class YearlyByMonthByMonthDay extends React.Component {
         super( inProps );
         this.state = { monthday: inProps.monthday };
         this.monthStyle = { marginLeft: '10px' };
-        this.onChangeMonth = this.onChangeMonth.bind( this );
-        this.onChangeDay = this.onChangeDay.bind( this ); 
     }
     
     onChange( inMonthDay ) {
@@ -17,12 +15,12 @@ export default class YearlyByMonthByMonthDay extends React.Component {
         this.props.onChange && this.props.onChange( inMonthDay );
     }
 
-    onChangeMonth( inEvent ) {
+    onChangeMonth = inEvent => {
         const theMonthDay = { month: inEvent.target.value, day: this.state.monthday.day };
         this.onChange( theMonthDay );
     }
 
-    onChangeDay( inEvent ) {
+    onChangeDay = inEvent => {
         const theMonthDay = { month: this.state.monthday.month, day: inEvent.target.value };
         this.onChange( theMonthDay );
     }

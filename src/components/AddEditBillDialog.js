@@ -16,23 +16,13 @@ export default class AddEditBillDialog extends React.Component {
     constructor( inProps ) {
         super( inProps );
         this.state = { bill: inProps.bill };
-        this.createDeleteCategory = this.createDeleteCategory.bind( this );
-        this.deleteCategory = this.deleteCategory.bind( this );
-        this.getCategoriesRenderTags = this.getCategoriesRenderTags.bind( this );
-        this.onChangeAmount = this.onChangeAmount.bind( this );
-        this.onChangeBiller = this.onChangeBiller.bind( this );
-        this.onChangeCategories = this.onChangeCategories.bind( this );
-        this.onChangeDueDate = this.onChangeDueDate.bind( this );        
-        this.onChangeNotificationDate = this.onChangeNotificationDate.bind( this );
-        this.onChangeRepeatRule = this.onChangeRepeatRule.bind( this );
-        this.onOk = this.onOk.bind( this );
     }
 
-    createDeleteCategory( inCategory ) {
+    createDeleteCategory = inCategory => {
         return () => this.deleteCategory( inCategory );
     }
 
-    deleteCategory( inCategory ) {
+    deleteCategory = inCategory => {
         const theBill = this.state.bill;
         const theIndex = theBill.categories.indexOf( inCategory );
         if ( theIndex !== -1 ) {
@@ -49,7 +39,7 @@ export default class AddEditBillDialog extends React.Component {
         return <TextField { ...inParams } label="Choose a category for your bill"/>
     }
 
-    getCategoriesRenderTags( inCategories, getTagProperties ) {
+    getCategoriesRenderTags = ( inCategories, getTagProperties ) => {
         return inCategories.map( ( inCategory, inIndex ) => (
             <Chip { ...getTagProperties( { inIndex } ) } onDelete={ this.createDeleteCategory( inCategory ) } label={ inCategory } key={ inCategory } />
         ) );
@@ -57,19 +47,19 @@ export default class AddEditBillDialog extends React.Component {
 
     getKnownCategories() { return BillService.getCategories(); }    
 
-    onChangeAmount( inEvent ) {
+    onChangeAmount = inEvent => {
         const theBill = this.state.bill;
         theBill.amount = inEvent.target.value;
         this.setState ( { bill: theBill } );
     }
 
-    onChangeBiller( inEvent ) {
+    onChangeBiller = inEvent => {
         const theBill = this.state.bill;
         theBill.biller = inEvent.target.value;
         this.setState ( { bill: theBill } );
     }
 
-    onChangeCategories( inEvent, inCategories, inReason ) {
+    onChangeCategories = ( inEvent, inCategories, inReason ) => {
         if ( inReason === 'create-option' || inReason === 'select-option' ) {
             const theBill = this.state.bill;
             theBill.categories = Array.from( inCategories );
@@ -77,25 +67,25 @@ export default class AddEditBillDialog extends React.Component {
         }
     }
 
-    onChangeDueDate( inDueDate ) {
+    onChangeDueDate = inDueDate => {
         const theBill = this.state.bill;
         theBill.dueDate = inDueDate;
         this.setState ( { bill: theBill } );
     }
 
-    onChangeNotificationDate( inNotificationDate ) {
+    onChangeNotificationDate = inNotificationDate => {
         const theBill = this.state.bill;
         theBill.notificationDate = inNotificationDate;
         this.setState ( { bill: theBill } );
     }
 
-    onChangeRepeatRule( inRepeatRule ) {
+    onChangeRepeatRule = inRepeatRule => {
         const theBill = this.state.bill;
         theBill.repeatRule = inRepeatRule;
         this.setState ( { bill: theBill } );
     }
 
-    onOk() {
+    onOk = () => {
         if ( this.props.onOk ) {
             this.props.onOk( this.state.bill );
         }

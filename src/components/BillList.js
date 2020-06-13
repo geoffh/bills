@@ -22,15 +22,12 @@ export default class BillList extends React.Component {
     constructor( inProps ) {
         super( inProps );
         this.state = { sortColumnId: 'dueDate', sortColumnDirection: 'asc' };
-        this.createDelete = this.createDelete.bind( this );
-        this.refresh = this.refresh.bind( this );
-        this.sort = this.sort.bind( this );
     }
 
     componentDidMount() { BillService.addListener( this.refresh ); }
     componentWillUnmount() { BillService.removeListener( this.refresh ); }
 
-    createDelete( inBill ) {
+    createDelete =  inBill => {
         return () => BillService.removeBill( inBill );
     }
 
@@ -60,11 +57,9 @@ export default class BillList extends React.Component {
         return theSortTableDirection;
     }
 
-    refresh() {
-        this.setState( { refreshing: true } );
-    }
+    refresh = () => this.setState( { refreshing: true } );
 
-    sort( inColumnId ) {
+    sort = inColumnId => {
         let theSortColumnDirection;
         if ( inColumnId !== this.state.sortColumnId || this.state.sortColumnDirection === false ) {
             theSortColumnDirection = 'asc';

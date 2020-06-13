@@ -7,10 +7,9 @@ export default class MonthlyByMonthDay extends React.Component {
     constructor( inProps ) {
         super( inProps );
         this.state = { monthday: inProps.monthday };
-        this.onChangeMonthDay = this.onChangeMonthDay.bind( this );
     }
 
-    onChangeMonthDay( inEvent ) {
+    onChangeMonthDay = inEvent => {
         this.setState( { monthday: inEvent.target.value } );
         this.props.onChange && this.props.onChange( inEvent.target.value );
     }

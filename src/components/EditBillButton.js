@@ -14,17 +14,14 @@ export default class EditBillButton extends React.Component {
     constructor( inProps ) {
         super( inProps );
         this.state = { addEditBillDialogVisible: false };
-        this.onSaveBill = this.onSaveBill.bind( this );
-        this.onAddEditBillDialogClose = this.onAddEditBillDialogClose.bind( this );
-        this.onAddEditBillDialogOpen = this.onAddEditBillDialogOpen.bind( this );
     }
 
-    onSaveBill( inBill ) {
+    onSaveBill = inBill => {
         this.onAddEditBillDialogClose();
         BillService.updateBill( inBill );
     }
-    onAddEditBillDialogOpen() { this.setAddEditBillDialogVisibility( true ); }
-    onAddEditBillDialogClose() { this.setAddEditBillDialogVisibility( false ); }
+    onAddEditBillDialogOpen = () => this.setAddEditBillDialogVisibility( true );
+    onAddEditBillDialogClose = () => this.setAddEditBillDialogVisibility( false );
     setAddEditBillDialogVisibility( inVisible ) { this.setState( { addEditBillDialogVisible: inVisible } ); }
 
     render() {

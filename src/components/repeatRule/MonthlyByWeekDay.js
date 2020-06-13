@@ -8,22 +8,20 @@ export default class MonthlyByWeekDay extends React.Component {
     constructor( inProps ) {
         super( inProps );
         this.state = { weekday: inProps.weekday };
-        this.dayStyle = { marginLeft: '10px' };
-        this.onChangeDay = this.onChangeDay.bind( this );
-        this.onChangeOccurrence = this.onChangeOccurrence.bind( this );        
+        this.dayStyle = { marginLeft: '10px' };       
     }
 
-    onChange( inWeekDay ) {
+    onChange = inWeekDay => {
         this.setState( { weekday: inWeekDay } );
         this.props.onChange && this.props.onChange( inWeekDay );
     }
 
-    onChangeDay( inEvent ) {
+    onChangeDay = inEvent => {
         const theWeekDay = { day: inEvent.target.value, occurrence: this.state.weekday.occurrence };
         this.onChange( theWeekDay );
     }
 
-    onChangeOccurrence( inEvent ) {
+    onChangeOccurrence = inEvent => {
         const theWeekDay = { day: this.state.weekday.day, occurrence: inEvent.target.value };
         this.onChange( theWeekDay );
     }

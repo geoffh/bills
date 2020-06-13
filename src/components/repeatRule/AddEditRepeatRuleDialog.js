@@ -24,14 +24,6 @@ export default class AddEditRepeatRuleDialog extends React.Component {
         super( inProps );
         this.state = this.createInitialState( inProps.repeatRule );
         this.monthlyStyle = { paddingBottom: '20px' };
-        this.onChangeEnd = this.onChangeEnd.bind( this );
-        this.onChangeInterval = this.onChangeInterval.bind( this );
-        this.onChangeFrequency = this.onChangeFrequency.bind( this );
-        this.onChangeMonthlyByMonthDay = this.onChangeMonthlyByMonthDay.bind( this );
-        this.onChangeMonthlyByWeekDay = this.onChangeMonthlyByWeekDay.bind( this );
-        this.onChangeMonthlyRuleType = this.onChangeMonthlyRuleType.bind( this );
-        this.onChangeYearlyByMonthDay = this.onChangeYearlyByMonthDay.bind( this );
-        this.onOk = this.onOk.bind( this );
     }
 
     createInitialState( inRepeatRule ) {
@@ -86,15 +78,15 @@ export default class AddEditRepeatRuleDialog extends React.Component {
     isMonthlyByMonthDay() { return RepeatRuleService.ruleTypeMonthlyByMonthDay === this.state.monthlyRuleType; }
     isMonthlyByWeekDay() { return RepeatRuleService.ruleTypeMonthlyByWeekDay === this.state.monthlyRuleType; }
 
-    onChangeEnd( inEnd ) { this.setState( { end: inEnd } ); }
-    onChangeFrequency( inFrequency ) { this.setState( { frequency: inFrequency } ); }
-    onChangeInterval( inInterval ) { this.setState( { interval: inInterval } ); }
-    onChangeMonthlyByMonthDay( inMonthlyByMonthDay ) { this.setState( { monthlyByMonthDay: inMonthlyByMonthDay } ) }
-    onChangeMonthlyByWeekDay( inMonthlyByWeekDay ) { this.setState( { monthlyByWeekDay: inMonthlyByWeekDay } ); }
-    onChangeMonthlyRuleType( inEvent ) { this.setState( { monthlyRuleType: inEvent.target.value } ); }
-    onChangeYearlyByMonthDay( inYearlyByMonthDay ) { this.setState( { yearlyByMonthDay: inYearlyByMonthDay } ) };
+    onChangeEnd = inEnd => { this.setState( { end: inEnd } ); }
+    onChangeFrequency = inFrequency => { this.setState( { frequency: inFrequency } ); }
+    onChangeInterval = inInterval => { this.setState( { interval: inInterval } ); }
+    onChangeMonthlyByMonthDay = inMonthlyByMonthDay => { this.setState( { monthlyByMonthDay: inMonthlyByMonthDay } ) }
+    onChangeMonthlyByWeekDay = inMonthlyByWeekDay => { this.setState( { monthlyByWeekDay: inMonthlyByWeekDay } ); }
+    onChangeMonthlyRuleType = inEvent => { this.setState( { monthlyRuleType: inEvent.target.value } ); }
+    onChangeYearlyByMonthDay = inYearlyByMonthDay => { this.setState( { yearlyByMonthDay: inYearlyByMonthDay } ) };
 
-    onOk() {
+    onOk = () => {
         if ( ! this.props.onOk ) {
             return;
         }
