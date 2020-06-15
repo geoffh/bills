@@ -1,5 +1,7 @@
 import { v4 as uuid } from 'uuid';
 
+import { RepeatRuleService } from './RepeatRuleService';
+
 const localStorage = window.localStorage;
 
 const BillService = {
@@ -52,8 +54,16 @@ const BillService = {
       } );
     }
     return JSON.parse( localStorage.billing, ( inKey, inValue ) => {
-      return inKey === 'notificationDate' || inKey === 'dueDate' ? new Date( Date.parse( inValue ) ) : inValue;
-    } );
+      let theValue;
+      if ( inKey === 'notificationDate' || inKey === 'dueDate' ) {
+        theValue = new Date( Date.parse( inValue ) );
+      } else if ( inKey === 'repeatRule' ) {
+        theValue = RepeatRuleService.parse( inValue );
+      } else {
+        theValue = inValue;
+      }
+      return theValue;
+    } )
   },
 
   getCategories: function() { return this.getBilling().categories.sort(); },
@@ -85,7 +95,9 @@ const BillService = {
     this.setBilling( theBilling );
   },
 
-  setBilling: function( inBilling ) { localStorage.billing = JSON.stringify( inBilling ); },
+  setBilling: function( inBilling ) {
+    localStorage.billing = JSON.stringify( inBilling, ( inKey, inValue ) => inKey === 'repeatRule' ? RepeatRuleService.stringify( inValue ) : inValue );
+  },
 
   setBills: function( inBills ) {
     const theBilling = this.getBilling();

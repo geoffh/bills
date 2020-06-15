@@ -17,13 +17,13 @@ export default class RepeatRule extends React.Component {
         super( inProps );
         this.state = {
             addEditRepeatRuleDialogVisible: false,
-            selection: inProps.repeatRule ? inProps.repeatRule : menuItemDoesNotRepeat, 
+            selection: this.getInitialSelection( inProps ), 
             startDate: inProps.startDate
         };
     }
 
     createMenuItems() {
-        const theMenuItems = [ { value: menuItemDoesNotRepeat, label: menuItemDoesNotRepeat} ].concat(
+        const theMenuItems = [ { value: menuItemDoesNotRepeat, label: menuItemDoesNotRepeat } ].concat(
             this.createQuickRules( this.state.startDate ).map( inRule => { return { value: inRule.toString(), label: inRule.toText() }; } ) );
         theMenuItems.push( { value: menuItemOther, label: menuItemOther } );
         return theMenuItems;
@@ -47,6 +47,12 @@ export default class RepeatRule extends React.Component {
             theQuickRules.push( theRule );
         }
         return theQuickRules;
+    }
+
+    getInitialSelection( inProps ) {
+        const theRule = RepeatRuleService.getRuleFromRuleSet( inProps.repeatRule );
+        const theSelection = theRule ? theRule.toString() : menuItemDoesNotRepeat;
+        return theSelection;
     }
 
     onAddEditRepeatRuleDialogOpen = () => this.setAddEditRepeatRuleDialogVisibility( true );
@@ -78,12 +84,14 @@ export default class RepeatRule extends React.Component {
         )
     }
 
+    ruleToRuleSet( inRule ) { return inRule === menuItemDoesNotRepeat ? null : RepeatRuleService.createRuleSet( this.props.repeatRuleSet, inRule ); }
+
     selectRule( inRule ) {
         if ( inRule === menuItemOther ) {
             this.setState( { addEditRepeatRuleDialogVisible: true } );
         } else {
             this.setState( { selection: inRule } );
-            this.props.onChange( inRule === menuItemDoesNotRepeat ? null : inRule );
+            this.props.onChange( this.ruleToRuleSet( inRule ) );
         }
     }
 

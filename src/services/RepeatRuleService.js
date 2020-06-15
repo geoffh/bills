@@ -1,4 +1,4 @@
-import { RRule, rrulestr } from 'rrule';
+import { RRule, RRuleSet, rrulestr } from 'rrule';
 
 const RepeatRuleService = {
     endTypeNever: 'endTypeNever',
@@ -98,9 +98,11 @@ const RepeatRuleService = {
     },
 
     createMonthlyByWeekDay: function( inRule ) {
-        return {            
+        let theDayOccurrence = this.getDayOccurrence( inRule.options.dtstart );
+        theDayOccurrence = theDayOccurrence < 5 ? theDayOccurrence : -1;
+        return {
             day: this.dayItems[ inRule.options.dtstart.getDay() ].value,
-            occurrence: this.getDayOccurrence( inRule.options.dtstart )
+            occurrence: theDayOccurrence
         };
     },
 
@@ -108,8 +110,17 @@ const RepeatRuleService = {
         return rrulestr( this.createRuleString( inStartDate, 'MONTHLY', inInterval, inEnd ) + ';BYDAY=' + inMonthlyByWeekDay.occurrence + inMonthlyByWeekDay.day ).toString();
     },
 
-    createRuleFromRuleString: function( inRuleString ) {
-        return rrulestr( inRuleString );
+    createRuleFromRuleString: function( inRuleString ) { return rrulestr( inRuleString ); },
+
+    createRuleSet: function( inTemplateRuleSet, inRule ) {
+        const theRuleSet = new RRuleSet();
+        theRuleSet.rrule( rrulestr( inRule ) );
+        if ( inTemplateRuleSet ) {
+            inTemplateRuleSet.exrules().forEach( inExRule => theRuleSet.exrule( inExRule ) );
+            inTemplateRuleSet.rdates().forEach( inRDate => theRuleSet.rdate( inRDate ) );
+            inTemplateRuleSet.exdates().forEach( inExDate => theRuleSet.exdate( inExDate ) );
+        }
+        return theRuleSet;
     },
 
     createRuleString: function( inStartDate, inFrequency, inInterval, inEnd ) {
@@ -125,9 +136,7 @@ const RepeatRuleService = {
         return this.endTypeDate === inEnd.type ? 'UNTIL=' + this.dateToISOString( inEnd.until ) : 'COUNT=' + inEnd.count;
     },
 
-    createYearlyByMonthDay( inRule ) {
-        return this.dateToYearlyByMonthDay( inRule.options.dtstart );
-    },
+    createYearlyByMonthDay( inRule ) { return this.dateToYearlyByMonthDay( inRule.options.dtstart ); },
 
     createYearlyByMonthDayRuleString: function( inStartDate, inInterval, inYearlyByMonthDay, inEnd ) {
         return rrulestr( this.createRuleString( inStartDate, 'YEARLY', inInterval, inEnd ) + ';BYMONTH=' + ( inYearlyByMonthDay.month + 1 ) + ';BYMONTHDAY=' + inYearlyByMonthDay.day ).toString();
@@ -148,9 +157,7 @@ const RepeatRuleService = {
     },
 
     getCount: function( inRule ) { return inRule.options.count; },
-
     getDayItems: function() { return this.dayItems; },
-
     getDayNumberItems: function() { return this.dayNumberItems; },
 
     getDayOccurrence: function( inDate ) {
@@ -191,23 +198,11 @@ const RepeatRuleService = {
         return theType;
     },
 
-    getFrequency: function( inRule ) {
-        return inRule.options.freq;
-    },
-
-    getFrequencyItems: function( inPlural ) {
-        return inPlural ? this.frequencyItemsPlural : this.frequencyItemsSingular;
-    },
-
-    getInterval: function( inRule ) {
-        return inRule.options.interval;
-    },
-
+    getFrequency: function( inRule ) { return inRule.options.freq; },
+    getFrequencyItems: function( inPlural ) { return inPlural ? this.frequencyItemsPlural : this.frequencyItemsSingular; },
+    getInterval: function( inRule ) { return inRule.options.interval; },
     getMonthItems: function() { return this.monthItems; },
-
-    getMonthlyByMonthDay: function( inRule ) {
-        return this.isMonthlyByMonthDay( inRule ) ? inRule.options.bymonthday[ 0 ] : null;
-    },
+    getMonthlyByMonthDay: function( inRule ) { return this.isMonthlyByMonthDay( inRule ) ? inRule.options.bymonthday[ 0 ] : null; },
 
     getMonthlyByWeekDay: function( inRule ) {
         // RRule uses Monday as first day of week but dayItems starts with Sunday
@@ -221,15 +216,23 @@ const RepeatRuleService = {
 
     getOccurrenceItems: function() { return this.occurrenceItems; },
 
+    getRuleFromRuleSet: function( inRuleSet ) {
+        let theRule = null;
+        if ( inRuleSet ) {
+            const theRules = inRuleSet.rrules();
+            if ( theRules && theRules.length === 1 ) {
+                theRule = theRules[ 0 ];
+            }
+        }
+        return theRule;
+    },
+
     getRuleType: function( inRule ) {
         return this.isYearly( inRule.options.freq ) ? this.ruleTypeYearlyByMonthDay :
             this.isMonthlyByMonthDay( inRule ) ? this.ruleTypeMonthlyByMonthDay : this.ruleTypeMonthlyByWeekDay;
     },
 
-    getStartDate: function( inRule ) {
-        return inRule.options.dtstart;
-    },
-
+    getStartDate: function( inRule ) { return inRule.options.dtstart; },
     getUntil: function( inRule ) { return inRule.options.until; },
 
     getYearlyByMonthDay: function( inRule ) {
@@ -242,30 +245,14 @@ const RepeatRuleService = {
     isEndOnDate( inEndType ) { return this.endTypeDate === inEndType; },
     isEndNever( inEndType ) { return this.endTypeNever === inEndType; },
     isEndAfterOccurrences( inEndType ) { return this.endTypeOccurrences === inEndType; },
-
-    isMonthlyByMonthDay: function( inRule ) {
-        return this.isMonthly( inRule.options.freq ) && inRule.options.bymonthday && inRule.options.bymonthday.length > 0;
-    },
-
-    isMonthlyByWeekDay: function( inRule) {
-        return this.isMonthly( inRule.options.freq ) && inRule.options.bynweekday && inRule.options.bynweekday.length > 0;
-    },
-
-    isMonthly: function( inFrquency ) {
-        return RRule.MONTHLY === inFrquency;
-    },
-
-    pad: function( inNumber ) {
-        return inNumber < 10 ? '0' + inNumber : inNumber;
-    },
-
-    isYearly: function( inFrequency ) {
-        return RRule.YEARLY === inFrequency;
-    },
-
-    isYearlyByMonthDay: function( inRule ) {
-        return this.isYearly( inRule.options.freq ) && inRule.options.bymonth && inRule.options.bymonthday;
-    },
+    isMonthlyByMonthDay: function( inRule ) { return this.isMonthly( inRule.options.freq ) && inRule.options.bymonthday && inRule.options.bymonthday.length > 0; },
+    isMonthlyByWeekDay: function( inRule) { return this.isMonthly( inRule.options.freq ) && inRule.options.bynweekday && inRule.options.bynweekday.length > 0; },
+    isMonthly: function( inFrquency ) { return RRule.MONTHLY === inFrquency; },    
+    isYearly: function( inFrequency ) { return RRule.YEARLY === inFrequency; },
+    isYearlyByMonthDay: function( inRule ) { return this.isYearly( inRule.options.freq ) && inRule.options.bymonth && inRule.options.bymonthday; },
+    pad: function( inNumber ) { return inNumber < 10 ? '0' + inNumber : inNumber; },
+    parse: function( inRuleSetString ) { return inRuleSetString ? rrulestr( inRuleSetString, { forceset: true } ) : null; },
+    stringify: function( inRuleSet ) { return inRuleSet ? inRuleSet.toString() : null; },
 
     yearlyByMonthDayToDate: function( inYearlyByMonthDay ) {
         const theDate = new Date();
