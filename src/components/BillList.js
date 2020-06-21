@@ -10,6 +10,7 @@ import TableRow from '@material-ui/core/TableRow';
 import './BillList.css';
 import BillListHead from './BillListHead';
 import { BillService } from '../services/BillService';
+import DateRangeSelector from './utils/DateRangeSelector';
 import EditBillButton from './EditBillButton';
 
 const columnHeaders = [
@@ -18,10 +19,15 @@ const columnHeaders = [
     { columnId: 'dueDate', columnLabel: 'Due Date' }
 ];
 
+
 export default class BillList extends React.Component {
     constructor( inProps ) {
         super( inProps );
-        this.state = { sortColumnId: 'dueDate', sortColumnDirection: 'asc' };
+        this.state = { 
+            range: this.createInitialRange() ,
+            sortColumnId: 'dueDate', 
+            sortColumnDirection: 'asc'
+        };
     }
 
     componentDidMount() { BillService.addListener( this.refresh ); }
@@ -31,8 +37,16 @@ export default class BillList extends React.Component {
         return () => BillService.removeBill( inBill );
     }
 
+    createInitialRange() {
+        const theStartDate = new Date();
+        theStartDate.setMonth( theStartDate.getMonth() - 2 );
+        const theEndDate = new Date();
+        theEndDate.setMonth( theEndDate.getMonth() + 2 );
+        return { startDate: theStartDate, endDate: theEndDate }
+    }
+
     createRows() {
-        return BillService.getBills().map( inBill => {
+        return BillService.getBillsForRange( this.state.range ).map( inBill => {
             return (
                 <TableRow hover key={ inBill.id }>
                     <TableCell>{ inBill.biller }</TableCell>
@@ -69,15 +83,20 @@ export default class BillList extends React.Component {
         const theColumnId = theSortColumnDirection !== false ? inColumnId : null;
         this.setState( { sortColumnId: theColumnId, sortColumnDirection: theSortColumnDirection } );
     }
+
+    onChangeRange = ( inRange ) => { this.setState( { range: inRange } ); }
     
     render() {
         return (
-            <Table>
-                <BillListHead columnHeaders={ columnHeaders }
-                    sortColumnId={ this.state.sortColumnId } sortColumnDirection={ this.state.sortColumnDirection }
-                    onSort={ this.sort }/>
-                <TableBody>{ this.createRows() }</TableBody>
-            </Table>
+            <div>
+                <DateRangeSelector range={ this.state.range } onChange={ this.onChangeRange }/>
+                <Table>
+                    <BillListHead columnHeaders={ columnHeaders }
+                        sortColumnId={ this.state.sortColumnId } sortColumnDirection={ this.state.sortColumnDirection }
+                        onSort={ this.sort }/>
+                    <TableBody>{ this.createRows() }</TableBody>
+                </Table>
+            </div>
         )
     }
 };

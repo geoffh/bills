@@ -2,12 +2,36 @@ import { v4 as uuid } from 'uuid';
 
 import { RepeatRuleService } from './RepeatRuleService';
 
-const localStorage = window.localStorage;
+const { localStorage } = window;
 
 const BillService = {
   listeners : [],
 
-  addCategory: function( inCategory ) {
+  addBill( inBill ) {
+    const { getBills, setBills } = this.getBillFunctions( inBill );
+    const theBills = getBills();
+    theBills.push( inBill );
+    setBills( theBills );
+    this.addCategoriesFromBill( inBill );
+    this.addBillerFromBill( inBill );
+    this.notifyListeners();
+  },
+
+  addBiller( inBiller ) {
+    if ( inBiller ) {
+      const theBillers = this.getBillers();
+      if ( theBillers.indexOf( inBiller ) === -1 ) {
+        theBillers.push( inBiller );
+        this.setBillers( theBillers );
+      }
+    }
+  },
+
+  addBillerFromBill( inBill ) {
+    this.addBiller( inBill.biller );
+  },
+
+  addCategory( inCategory ) {
     if ( inCategory ) {
       const theCategories = this.getCategories();
       if ( theCategories.indexOf( inCategory ) === -1 ) {
@@ -17,23 +41,15 @@ const BillService = {
     }
   },
 
-  addCategoriesFromBill: function( inBill ) {
+  addCategoriesFromBill( inBill ) {
     if ( inBill.categories ) {
       inBill.categories.forEach( inCategory => this.addCategory( inCategory ) );
     }
   },
 
-  addBill: function( inBill ) {
-    const theBills = this.getBills();
-    theBills.push( inBill );
-    this.setBills( theBills );
-    this.addCategoriesFromBill( inBill );
-    this.notifyListeners();
-  },
+  addListener( inListener ) { this.listeners.push( inListener ); },
 
-  addListener: function( inListener ) { this.listeners.push( inListener ); },
-
-  createBill: function() {
+  createBill() {
     const theDueDate = new Date();
     theDueDate.setDate( theDueDate.getDate() + 2 * 7 );
     return {
@@ -46,10 +62,12 @@ const BillService = {
     }
   },
 
-  getBilling: function() {
+  getBilling() {
     if ( ! localStorage.billing ) {
       localStorage.billing = JSON.stringify( {
         categories: [],
+        billers: [],
+        billTemplates: [],
         bills: []
       } );
     }
@@ -66,52 +84,101 @@ const BillService = {
     } )
   },
 
-  getCategories: function() { return this.getBilling().categories.sort(); },
+  getBillers() { return this.getBilling().billers.sort(); },
 
-  getBills: function() { return this.getBilling().bills; },
+  getCategories() { return this.getBilling().categories.sort(); },
 
-  notifyListeners: function() { this.listeners.forEach( inListener => inListener() ); },
+  getBillFunctions( inBill ) {
+    return this.isBill( inBill ) ? 
+      { getBills: this.getBills.bind( this ), setBills: this.setBills.bind( this ) } : 
+      { getBills: this.getBillTemplates.bind( this ), setBills: this.setBillTemplates.bind( this ) };
+  },
 
-  removeBill: function( inBill ) {
-    const theBills = this.getBills();
+  getBillTemplates() { return this.getBilling().billTemplates; },
+
+  getBills() { return this.getBilling().bills; },
+
+  getBillsForRange( { startDate: inStartDate, endDate: inStopDate }  ) {
+    console.log( 'start:' + inStartDate + ' end:' + inStopDate );
+    const theBills = [];
+    this.getBills().forEach( inBill => {
+      if ( inBill.dueDate >= inStartDate && inBill.dueDate <= inStopDate ) {
+        theBills.push( inBill );
+      }
+    } );
+    this.getBillTemplates().forEach( inBill => {
+      RepeatRuleService.getRepeatDates( inBill.repeatRule, inStartDate, inStopDate ).forEach( inDueDate => {
+        const theBill = Object.assign( {}, inBill );
+        theBill.id = uuid();
+        theBill.dueDate = inDueDate;
+        theBills.push( theBill );
+      } );
+    } );
+    return theBills;
+  },
+
+  isBill( inBill ) { return ! this.isBillTemplate( inBill ); },
+
+  isBillTemplate( inBillTemplate ) { return inBillTemplate.repeatRule; },
+
+  notifyListeners() { this.listeners.forEach( inListener => inListener() ); },
+
+  removeBill( inBill ) {
+    const { getBills, setBills } = this.getBillFunctions( inBill );
+    const theBills = getBills();
+    
     const theIndex = theBills.findIndex( theBill => theBill.id === inBill.id );
     if ( theIndex !== -1 ) {
       theBills.splice( theIndex, 1 );
-      this.setBills( theBills );
+      setBills( theBills );
       this.notifyListeners();
     }
   },
 
-  removeListener: function( inListener ) {
+  removeListener( inListener ) {
     const theIndex = this.listeners.indexOf( inListener );
     if ( theIndex !== -1 ) {
       this.listeners.splice( theIndex, 1 );
     }
   },
 
-  setCategories: function( inCategories ) {
+  setBillers( inBillers ) {
+    const theBilling = this.getBilling();
+    theBilling.billers = inBillers;
+    this.setBilling( theBilling );
+  },
+
+  setCategories( inCategories ) {
     const theBilling = this.getBilling();
     theBilling.categories = inCategories;
     this.setBilling( theBilling );
   },
 
-  setBilling: function( inBilling ) {
+  setBilling( inBilling ) {
     localStorage.billing = JSON.stringify( inBilling, ( inKey, inValue ) => inKey === 'repeatRule' ? RepeatRuleService.stringify( inValue ) : inValue );
   },
 
-  setBills: function( inBills ) {
+  setBillTemplates( inBillTemplates ) {
+    const theBilling = this.getBilling();
+    theBilling.billTemplates = inBillTemplates;
+    this.setBilling( theBilling );
+  },
+
+  setBills( inBills ) {
     const theBilling = this.getBilling();
     theBilling.bills = inBills;
     this.setBilling( theBilling );
   },
 
-  updateBill: function( inBill ) {
-    const theBills = this.getBills();
+  updateBill( inBill ) {
+    const { getBills, setBills } = this.getBillFunctions( inBill );
+    const theBills = getBills();    
     const theIndex = theBills.findIndex( theBill => theBill.id === inBill.id );
     if ( theIndex !== -1 ) {
       theBills.splice( theIndex, 1, inBill );
-      this.setBills( theBills );
+      setBills( theBills );
       this.addCategoriesFromBill( inBill );
+      this.addBillerFromBill( inBill );
       this.notifyListeners();
     }
   }

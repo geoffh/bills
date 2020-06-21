@@ -8,7 +8,7 @@ import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import TextField from '@material-ui/core/TextField';
 
-import DatePicker from '../utils/DatePicker';
+import DateSelector from '../utils/DateSelector';
 import { RepeatRuleService } from '../../services/RepeatRuleService';
 
 export default class End extends React.Component {
@@ -55,7 +55,7 @@ export default class End extends React.Component {
                         </div>
                         <div>
                             <FormControlLabel value={ RepeatRuleService.endTypeDate } control={ <Radio/>} label="On"/>
-                            <DatePicker value={ this.state.end.until } onChange={ this.onChangeUntil } disabled={ ! this.isEndOnDate() }/>
+                            <DateSelector value={ this.state.end.until } onChange={ this.onChangeUntil } disabled={ ! this.isEndOnDate() }/>
                         </div>
                         <div>
                             <FormControlLabel value={ RepeatRuleService.endTypeOccurrences } control={<Radio/>} label="After"/>

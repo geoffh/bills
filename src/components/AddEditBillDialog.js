@@ -8,7 +8,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import TextField from '@material-ui/core/TextField';
 
 import { BillService } from '../services/BillService';
-import DatePicker from './utils/DatePicker';
+import DateSelector from './utils/DateSelector';
 import OkCancelDialog from './utils/OkCancelDialog';
 import RepeatRule from './repeatRule/RepeatRule';
 
@@ -101,8 +101,8 @@ export default class AddEditBillDialog extends React.Component {
                     <DialogContentText>{ this.props.dialogContentText }</DialogContentText>
                     <TextField variant="outlined" value={ this.state.bill.biller } onChange={ this.onChangeBiller } label="Biller" id="biller" autoFocus required fullWidth margin="dense" />
                     <TextField variant="outlined" value={ this.state.bill.amount } onChange={ this.onChangeAmount } label="Amount" id="amount" required fullWidth margin="dense"/>
-                    <DatePicker value={ this.state.bill.notificationDate } onChange={ this.onChangeNotificationDate } label="Notification Date"/>
-                    <DatePicker value={ this.state.bill.dueDate } onChange={ this.onChangeDueDate } label="Due Date"/>
+                    <DateSelector value={ this.state.bill.notificationDate } onChange={ this.onChangeNotificationDate } label="Notification Date"/>
+                    <DateSelector value={ this.state.bill.dueDate } onChange={ this.onChangeDueDate } label="Due Date"/>
                     <RepeatRule repeatRule={ this.state.bill.repeatRule } startDate={ this.state.bill.dueDate } onChange={ this.onChangeRepeatRule }/>
                     <Autocomplete id="categories" options={ this.getKnownCategories() }
                                   value = { this.getBillCategories() }
