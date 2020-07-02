@@ -99,7 +99,6 @@ const BillService = {
   getBills() { return this.getBilling().bills; },
 
   getBillsForRange( { startDate: inStartDate, endDate: inStopDate }  ) {
-    console.log( 'start:' + inStartDate + ' end:' + inStopDate );
     const theBills = [];
     this.getBills().forEach( inBill => {
       if ( inBill.dueDate >= inStartDate && inBill.dueDate <= inStopDate ) {
