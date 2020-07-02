@@ -8,9 +8,9 @@ import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 
 import './BillList.css';
+import BillFilters from './BillFilters';
 import BillListHead from './BillListHead';
 import { BillService } from '../services/BillService';
-import DateRangeSelector from './utils/DateRangeSelector';
 import EditBillButton from './EditBillButton';
 
 const columnHeaders = [
@@ -23,8 +23,10 @@ const columnHeaders = [
 export default class BillList extends React.Component {
     constructor( inProps ) {
         super( inProps );
-        this.state = { 
-            range: this.createInitialRange() ,
+        this.state = {
+            billers: BillService.getBillers(),
+            categories: BillService.getCategories(),
+            range: this.createInitialRange(),
             sortColumnId: 'dueDate', 
             sortColumnDirection: 'asc'
         };
@@ -84,19 +86,21 @@ export default class BillList extends React.Component {
         this.setState( { sortColumnId: theColumnId, sortColumnDirection: theSortColumnDirection } );
     }
 
-    onChangeRange = ( inRange ) => { this.setState( { range: inRange } ); }
+    onChangeFilters = ( inFilters ) => {
+        this.setState( { billers: inFilters.billers, categories: inFilters.categories, range: inFilters.range } );
+    }
     
     render() {
         return (
-            <div>
-                <DateRangeSelector range={ this.state.range } onChange={ this.onChangeRange }/>
+            <>
+                <BillFilters filters= { { billers: this.state.billers, categories: this.state.categories, range: this.state.range } } onChange={ this.onChangeFilters }/>
                 <Table>
                     <BillListHead columnHeaders={ columnHeaders }
                         sortColumnId={ this.state.sortColumnId } sortColumnDirection={ this.state.sortColumnDirection }
                         onSort={ this.sort }/>
                     <TableBody>{ this.createRows() }</TableBody>
                 </Table>
-            </div>
+            </>
         )
     }
 };
