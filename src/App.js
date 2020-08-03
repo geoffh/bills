@@ -1,7 +1,7 @@
 import React from 'react';
 
-import BillAppBar from './components/BillAppBar';
-import BillList from './components/BillList';
+import BillAppBar from './components/appBar/BillAppBar';
+import BillList from './components/billList/BillList';
 
 export default function App() {  
   return (

@@ -9,7 +9,7 @@ import TableRow from '@material-ui/core/TableRow';
 
 import './BillList.css';
 import BillListHead from './BillListHead';
-import { BillService } from '../services/BillService';
+import { BillService } from '../../services/BillService';
 import EditBillButton from './EditBillButton';
 
 const columnHeaders = [

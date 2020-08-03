@@ -1,25 +1,26 @@
 import React from 'react';
 
-import Edit from '@material-ui/icons/Edit'
+import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import IconButton from '@material-ui/core/IconButton';
 
-import AddEditBillDialog from './AddEditBillDialog';
-import { BillService } from '../services/BillService';
+import AddEditBillDialog from '../AddEditBillDialog';
+import { BillService } from '../../services/BillService';
 
-const okLabel = 'Save';
+const okLabel = 'Add Bill';
 const dialogContentText = 'Fill in the details, click ' + okLabel + '.';
-const dialogTitle = 'Change your bill';
+const dialogTitle = 'Add a bill';
 
-export default class EditBillButton extends React.Component {
+export default class AddBillButton extends React.Component {
     constructor( inProps ) {
         super( inProps );
         this.state = { addEditBillDialogVisible: false };
     }
 
-    onSaveBill = inBill => {
+    onAddBill = inBill => {
         this.onAddEditBillDialogClose();
-        BillService.updateBill( inBill );
+        BillService.addBill( inBill );
     }
+
     onAddEditBillDialogOpen = () => this.setAddEditBillDialogVisibility( true );
     onAddEditBillDialogClose = () => this.setAddEditBillDialogVisibility( false );
     setAddEditBillDialogVisibility( inVisible ) { this.setState( { addEditBillDialogVisible: inVisible } ); }
@@ -27,10 +28,10 @@ export default class EditBillButton extends React.Component {
     render() {
         return (
             <>
-                <IconButton onClick={ this.onAddEditBillDialogOpen } size="small" color="inherit" aria-label="edit"><Edit/></IconButton>
+                <IconButton onClick={ this.onAddEditBillDialogOpen } size="small" color="inherit" aria-label="add"><AddCircleOutlineIcon/></IconButton>
                 <AddEditBillDialog open={ this.state.addEditBillDialogVisible } onCancel={ this.onAddEditBillDialogClose }
-                                   onClose={ this.onAddEditBillDialogClose } onOk={ this.onSaveBill }
-                                   bill={ this.props.bill }
+                                   onClose={ this.onAddEditBillDialogClose } onOk={ this.onAddBill }
+                                   bill={ BillService.createBill() } categories={ BillService.getCategories() }
                                    dialogTitle = { dialogTitle } dialogContentText = { dialogContentText } okLabel = { okLabel }/>
             </>
         )
