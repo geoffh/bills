@@ -26,19 +26,13 @@ export default class AddBillButton extends React.Component {
     setAddEditBillDialogVisibility( inVisible ) { this.setState( { addEditBillDialogVisible: inVisible } ); }
 
     render() {
-        let theAddEditBillDialog;
-        if ( this.state.addEditBillDialogVisible ) {
-            theAddEditBillDialog = <AddEditBillDialog open={ this.state.addEditBillDialogVisible } onCancel={ this.onAddEditBillDialogClose }
-                onClose={ this.onAddEditBillDialogClose } onOk={ this.onAddBill }
-                bill={ BillService.createBill() } categories={ BillService.getCategories() }
-                dialogTitle = { dialogTitle } dialogContentText = { dialogContentText } okLabel = { okLabel }/>
-        } else {
-            theAddEditBillDialog = null;
-        }
         return (
             <>
                 <IconButton onClick={ this.onAddEditBillDialogOpen } size="small" color="inherit" aria-label="add"><AddCircleOutlineIcon/></IconButton>
-                { theAddEditBillDialog }
+                <AddEditBillDialog open={ this.state.addEditBillDialogVisible } onCancel={ this.onAddEditBillDialogClose }
+                                   onClose={ this.onAddEditBillDialogClose } onOk={ this.onAddBill }
+                                   bill={ BillService.createBill() } categories={ BillService.getCategories() }
+                                   dialogTitle = { dialogTitle } dialogContentText = { dialogContentText } okLabel = { okLabel }/>
             </>
         )
     }

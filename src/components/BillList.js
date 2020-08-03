@@ -8,7 +8,6 @@ import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 
 import './BillList.css';
-import BillFilters from './BillFilters';
 import BillListHead from './BillListHead';
 import { BillService } from '../services/BillService';
 import EditBillButton from './EditBillButton';
@@ -92,15 +91,12 @@ export default class BillList extends React.Component {
     
     render() {
         return (
-            <>
-                <BillFilters filters= { { billers: this.state.billers, categories: this.state.categories, range: this.state.range } } onChange={ this.onChangeFilters }/>
-                <Table>
-                    <BillListHead columnHeaders={ columnHeaders }
-                        sortColumnId={ this.state.sortColumnId } sortColumnDirection={ this.state.sortColumnDirection }
-                        onSort={ this.sort }/>
-                    <TableBody>{ this.createRows() }</TableBody>
-                </Table>
-            </>
+            <Table>
+                <BillListHead columnHeaders={ columnHeaders }
+                    sortColumnId={ this.state.sortColumnId } sortColumnDirection={ this.state.sortColumnDirection }
+                    onSort={ this.sort }/>
+                <TableBody>{ this.createRows() }</TableBody>
+            </Table>
         )
     }
 };
