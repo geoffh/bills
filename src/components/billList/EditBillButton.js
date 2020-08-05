@@ -3,7 +3,7 @@ import React from 'react';
 import Edit from '@material-ui/icons/Edit'
 import IconButton from '@material-ui/core/IconButton';
 
-import AddEditBillDialog from '../AddEditBillDialog';
+import AddEditBillDialog from '../addEditBill/AddEditBillDialog';
 import { BillService } from '../../services/BillService';
 
 const okLabel = 'Save';
