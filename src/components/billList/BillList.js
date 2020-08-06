@@ -1,6 +1,7 @@
 import React from 'react';
 
 import Delete from '@material-ui/icons/Delete';
+import Edit from '@material-ui/icons/Edit';
 import IconButton from '@material-ui/core/IconButton';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -8,9 +9,9 @@ import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 
 import './BillList.css';
+import AddEditBillDialog from '../addEditBill/AddEditBillDialog';
 import BillListHead from './BillListHead';
 import { BillService } from '../../services/BillService';
-import EditBillButton from './EditBillButton';
 
 const columnHeaders = [
     { columnId: 'biller', columnLabel: 'Biller' },
@@ -18,6 +19,9 @@ const columnHeaders = [
     { columnId: 'dueDate', columnLabel: 'Due Date' }
 ];
 
+const editBillOkLabel = 'Save';
+const editBillDialogContentText = 'Fill in the details, click ' + editBillOkLabel + '.';
+const editBillDialogTitle = 'Change your bill';
 
 export default class BillList extends React.Component {
     constructor( inProps ) {
@@ -27,16 +31,16 @@ export default class BillList extends React.Component {
             categories: BillService.getCategories(),
             range: this.createInitialRange(),
             sortColumnId: 'dueDate', 
-            sortColumnDirection: 'asc'
+            sortColumnDirection: 'asc',
+            billToEdit: null
         };
     }
 
     componentDidMount() { BillService.addListener( this.refresh ); }
     componentWillUnmount() { BillService.removeListener( this.refresh ); }
 
-    createDelete =  inBill => {
-        return () => BillService.removeBill( inBill );
-    }
+    createDelete =  inBill => { return () => BillService.removeBill( inBill ); };
+    createEdit = inBill => { return () => { this.setState( { billToEdit: inBill } ); } };
 
     createInitialRange() {
         const theStartDate = new Date();
@@ -55,8 +59,15 @@ export default class BillList extends React.Component {
                     <TableCell>
                         { inBill.dueDate.toLocaleDateString('en-IE') }
                         <span className="visibleOnHover">
-                            <EditBillButton bill={ inBill }/>
-                            <IconButton onClick={ this.createDelete( inBill ) } size="small" color="inherit" aria-label="deleteBill"><Delete/></IconButton>
+                            <IconButton onClick = { this.createEdit( inBill ) } size = "small" color = "inherit" aria-label = "edit"><Edit/></IconButton>
+                            { this.state.billToEdit ?
+                                <AddEditBillDialog open onCancel = { this.onEditBillDialogClose }
+                                    onClose = { this.onEditBillDialogClose } onOk = { this.onEditBillDialogSave }
+                                    bill = { this.state.billToEdit }
+                                    dialogTitle = { editBillDialogTitle } dialogContentText = { editBillDialogContentText } okLabel = { editBillOkLabel }/> :
+                                null
+                            }
+                            <IconButton onClick = { this.createDelete( inBill ) } size = "small" color = "inherit" aria-label = "deleteBill"><Delete/></IconButton>
                         </span>
                     </TableCell>                   
                 </TableRow>
@@ -72,6 +83,13 @@ export default class BillList extends React.Component {
         return theSortTableDirection;
     }
 
+    onEditBillDialogClose = () => { this.setState( { billToEdit: null } ); }
+
+    onEditBillDialogSave = () => {
+        BillService.updateBill( this.state.billToEdit );
+        this.onEditBillDialogClose();
+    }
+
     refresh = () => this.setState( { refreshing: true } );
 
     sort = inColumnId => {
@@ -83,10 +101,6 @@ export default class BillList extends React.Component {
         }
         const theColumnId = theSortColumnDirection !== false ? inColumnId : null;
         this.setState( { sortColumnId: theColumnId, sortColumnDirection: theSortColumnDirection } );
-    }
-
-    onChangeFilters = ( inFilters ) => {
-        this.setState( { billers: inFilters.billers, categories: inFilters.categories, range: inFilters.range } );
     }
     
     render() {

@@ -5,9 +5,9 @@ import BillAppBar from './components/appBar/BillAppBar';
 import BillList from './components/billList/BillList';
 import { BillService } from './services/BillService';
 
-const okLabel = 'Add Bill';
-const dialogContentText = 'Fill in the details, click ' + okLabel + '.';
-const dialogTitle = 'Add a bill';
+const addBillOkLabel = 'Add Bill';
+const addBillDialogContentText = 'Fill in the details, click ' + addBillOkLabel + '.';
+const addBillDialogTitle = 'Add a bill';
 
 export default class App extends React.Component {
   constructor( inProps ) {
@@ -31,12 +31,12 @@ export default class App extends React.Component {
   render() {
     return (
       <div>
-        <BillAppBar onClickAddBill={ this.onClickAddBill } onClickFilterBills={ this.onClickFilterBills }/>
+        <BillAppBar onClickAddBill = { this.onClickAddBill } onClickFilterBills = { this.onClickFilterBills }/>
         <BillList/>
-        <AddEditBillDialog open={ this.state.addBillVisible } onCancel={ this.onCloseAddBill }
-                           onClose={ this.onCloseAddBill } onOk={ this.onAddBill }
-                           bill={ BillService.createBill() } categories={ BillService.getCategories() }
-                           dialogTitle={ dialogTitle } dialogContentText = { dialogContentText } okLabel = { okLabel }/>
+        <AddEditBillDialog open = { this.state.addBillVisible } onCancel = { this.onCloseAddBill }
+                           onClose = { this.onCloseAddBill } onOk = { this.onAddBill }
+                           bill = { BillService.createBill() } categories = { BillService.getCategories() }
+                           dialogTitle = { addBillDialogTitle } dialogContentText = { addBillDialogContentText } okLabel = { addBillOkLabel }/>
         { this.getFilterBills() }
       </div>
     );
