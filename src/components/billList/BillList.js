@@ -9,7 +9,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 
 import './BillList.css';
-import AddEditBillDialog from '../addEditBill/AddEditBillDialog';
+import BillAddEditDialog from '../billAddEdit/BillAddEditDialog';
 import BillListHead from './BillListHead';
 import { BillService } from '../../services/BillService';
 
@@ -19,9 +19,9 @@ const columnHeaders = [
     { columnId: 'dueDate', columnLabel: 'Due Date' }
 ];
 
-const editBillOkLabel = 'Save';
-const editBillDialogContentText = 'Fill in the details, click ' + editBillOkLabel + '.';
-const editBillDialogTitle = 'Change your bill';
+const billEditOkLabel = 'Save';
+const billEditDialogContentText = 'Fill in the details, click ' + billEditOkLabel + '.';
+const billEditDialogTitle = 'Change your bill';
 
 export default class BillList extends React.Component {
     constructor( inProps ) {
@@ -61,10 +61,10 @@ export default class BillList extends React.Component {
                         <span className="visibleOnHover">
                             <IconButton onClick = { this.createEdit( inBill ) } size = "small" color = "inherit" aria-label = "edit"><Edit/></IconButton>
                             { this.state.billToEdit ?
-                                <AddEditBillDialog open onCancel = { this.onEditBillDialogClose }
-                                    onClose = { this.onEditBillDialogClose } onOk = { this.onEditBillDialogSave }
+                                <BillAddEditDialog open onCancel = { this.onCloseBillEditDialog }
+                                    onClose = { this.onCloseBillEditDialog } onOk = { this.onSaveBillEditDialog }
                                     bill = { this.state.billToEdit }
-                                    dialogTitle = { editBillDialogTitle } dialogContentText = { editBillDialogContentText } okLabel = { editBillOkLabel }/> :
+                                    dialogTitle = { billEditDialogTitle } dialogContentText = { billEditDialogContentText } okLabel = { billEditOkLabel }/> :
                                 null
                             }
                             <IconButton onClick = { this.createDelete( inBill ) } size = "small" color = "inherit" aria-label = "deleteBill"><Delete/></IconButton>
@@ -83,9 +83,9 @@ export default class BillList extends React.Component {
         return theSortTableDirection;
     }
 
-    onEditBillDialogClose = () => { this.setState( { billToEdit: null } ); }
+    onCloseBillEditDialog = () => { this.setState( { billToEdit: null } ); }
 
-    onEditBillDialogSave = () => {
+    onSaveBillEditDialog = () => {
         BillService.updateBill( this.state.billToEdit );
         this.onEditBillDialogClose();
     }

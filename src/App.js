@@ -1,43 +1,40 @@
 import React from 'react';
 
-import AddEditBillDialog from './components/addEditBill/AddEditBillDialog';
+import BillAddEditDialog from './components/billAddEdit/BillAddEditDialog';
 import BillAppBar from './components/appBar/BillAppBar';
+import BillFilter from './components/billFilter/BillFilter';
 import BillList from './components/billList/BillList';
 import { BillService } from './services/BillService';
 
-const addBillOkLabel = 'Add Bill';
-const addBillDialogContentText = 'Fill in the details, click ' + addBillOkLabel + '.';
-const addBillDialogTitle = 'Add a bill';
+const billAddOkLabel = 'Add Bill';
+const billAddDialogContentText = 'Fill in the details, click ' + billAddOkLabel + '.';
+const billAddDialogTitle = 'Add a bill';
 
 export default class App extends React.Component {
   constructor( inProps ) {
     super( inProps );
-    this.state = { addBillVisible: false, filterBillsVisible: false }
+    this.state = { billAddVisible: false, billFilterVisible: false }
   }
 
-  getFilterBills = () => {
-    return null;
-  };
-
-  onAddBill = ( inBill ) => {
+  onBillAdd = ( inBill ) => {
     BillService.addBill( inBill );
-    this.onCloseAddBill();
+    this.onCloseBillAdd();
   };
 
-  onClickAddBill = () => { this.setState( { addBillVisible: true } ); }
-  onClickFilterBills = () => { this.setState( { filterBillsVisible: true } ); };
-  onCloseAddBill = () => { this.setState( { addBillVisible: false } ); };
+  onClickBillAdd = () => { this.setState( { billAddVisible: true } ); }
+  onClickBillFilter = () => { this.setState( { billFilterVisible: true } ); };
+  onCloseBillAdd = () => { this.setState( { billAddVisible: false } ); };
 
   render() {
     return (
       <div>
-        <BillAppBar onClickAddBill = { this.onClickAddBill } onClickFilterBills = { this.onClickFilterBills }/>
+        <BillAppBar onClickBillAdd = { this.onClickBillAdd } onClickBillFilter = { this.onClickBillFilter }/>
         <BillList/>
-        <AddEditBillDialog open = { this.state.addBillVisible } onCancel = { this.onCloseAddBill }
-                           onClose = { this.onCloseAddBill } onOk = { this.onAddBill }
+        <BillAddEditDialog open = { this.state.billAddVisible } onCancel = { this.onCloseBillAdd }
+                           onClose = { this.onCloseBillAdd } onOk = { this.onBillAdd }
                            bill = { BillService.createBill() } categories = { BillService.getCategories() }
-                           dialogTitle = { addBillDialogTitle } dialogContentText = { addBillDialogContentText } okLabel = { addBillOkLabel }/>
-        { this.getFilterBills() }
+                           dialogTitle = { billAddDialogTitle } dialogContentText = { billAddDialogContentText } okLabel = { billAddOkLabel }/>
+        <BillFilter open = { this.state.billFilterVisible }/>
       </div>
     );
   }

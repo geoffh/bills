@@ -19,8 +19,8 @@ export default class BillAppBar extends React.Component {
                         <IconButton edge="start" color="inherit" aria-label="menu"><MenuIcon/></IconButton>
                         <Typography variant="h6">Bills</Typography>
                         <div className="toolbarButtons">
-                            <IconButton onClick={ this.props.onClickFilterBills } size="small" color="inherit" aria-label="add"><FilterListIcon/></IconButton>
-                            <IconButton onClick={ this.props.onClickAddBill } size="small" color="inherit" aria-label="add"><AddCircleOutlineIcon/></IconButton>
+                            <IconButton onClick={ this.props.onClickBillFilter } size="small" color="inherit" aria-label="add"><FilterListIcon/></IconButton>
+                            <IconButton onClick={ this.props.onClickBillAdd } size="small" color="inherit" aria-label="add"><AddCircleOutlineIcon/></IconButton>
                         </div>
                     </Toolbar>
                 </AppBar>
