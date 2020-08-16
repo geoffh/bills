@@ -16,6 +16,15 @@ export default class App extends React.Component {
     this.state = { billAddVisible: false, billFilterVisible: false }
   }
 
+  getBillAddEditDialog = () => {
+    return this.state.billAddVisible ?
+      <BillAddEditDialog open onCancel = { this.onCloseBillAdd }
+                        onClose = { this.onCloseBillAdd } onOk = { this.onBillAdd }
+                        bill = { BillService.createBill() } categories = { BillService.getCategories() }
+                        dialogTitle = { billAddDialogTitle } dialogContentText = { billAddDialogContentText } okLabel = { billAddOkLabel }/> :
+    null;
+  }
+
   onBillAdd = ( inBill ) => {
     BillService.addBill( inBill );
     this.onCloseBillAdd();
@@ -30,10 +39,7 @@ export default class App extends React.Component {
       <div>
         <BillAppBar onClickBillAdd = { this.onClickBillAdd } onClickBillFilter = { this.onClickBillFilter }/>
         <BillList/>
-        <BillAddEditDialog open = { this.state.billAddVisible } onCancel = { this.onCloseBillAdd }
-                           onClose = { this.onCloseBillAdd } onOk = { this.onBillAdd }
-                           bill = { BillService.createBill() } categories = { BillService.getCategories() }
-                           dialogTitle = { billAddDialogTitle } dialogContentText = { billAddDialogContentText } okLabel = { billAddOkLabel }/>
+        { this.getBillAddEditDialog() }
         <BillFilter open = { this.state.billFilterVisible }/>
       </div>
     );

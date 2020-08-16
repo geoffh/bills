@@ -87,7 +87,7 @@ export default class BillList extends React.Component {
 
     onSaveBillEditDialog = () => {
         BillService.updateBill( this.state.billToEdit );
-        this.onEditBillDialogClose();
+        this.setState( { billToEdit: null } );
     }
 
     refresh = () => this.setState( { refreshing: true } );
