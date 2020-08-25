@@ -1,7 +1,7 @@
 import React from 'react';
 
 import BillAddEditDialog from './components/billAddEdit/BillAddEditDialog';
-import BillAppBar from './components/appBar/BillAppBar';
+import BillAppBar from './components/billAppBar/BillAppBar';
 import BillFilter from './components/billFilter/BillFilter';
 import BillList from './components/billList/BillList';
 import { BillService } from './services/BillService';

@@ -10,7 +10,7 @@ import TextField from '@material-ui/core/TextField';
 import { BillService } from '../../services/BillService';
 import DateSelector from '../utils/DateSelector';
 import OkCancelDialog from '../utils/OkCancelDialog';
-import RepeatRule from '../repeatRule/RepeatRule';
+import RepeatRule from '../billRepeatRule/RepeatRule';
 
 export default class BillAddEditDialog extends React.Component {
     constructor( inProps ) {
