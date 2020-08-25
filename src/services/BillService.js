@@ -20,7 +20,7 @@ const BillService = {
   addBiller( inBiller ) {
     if ( inBiller ) {
       const theBillers = this.getBillers();
-      if ( theBillers.indexOf( inBiller ) === -1 ) {
+      if ( ! theBillers.includes( inBiller ) ) {
         theBillers.push( inBiller );
         this.setBillers( theBillers );
       }
@@ -34,7 +34,7 @@ const BillService = {
   addCategory( inCategory ) {
     if ( inCategory ) {
       const theCategories = this.getCategories();
-      if ( theCategories.indexOf( inCategory ) === -1 ) {
+      if ( ! theCategories.includes( inCategory ) ) {
         theCategories.push( inCategory );
         this.setCategories( theCategories );
       }
@@ -98,15 +98,13 @@ const BillService = {
 
   getBills() { return this.getBilling().bills; },
 
-  getBillsForRange( { startDate: inStartDate, endDate: inStopDate }  ) {
-    const theBills = [];
-    this.getBills().forEach( inBill => {
-      if ( inBill.dueDate >= inStartDate && inBill.dueDate <= inStopDate ) {
-        theBills.push( inBill );
-      }
-    } );
+  getFilteredBills( { range: inRange, billers: inBillers, categories: inCategories } ) {
+    const theBills = this.getBills()
+      .filter( inBill => inBill.dueDate >= inRange.startDate && inBill.dueDate <= inRange.endDate )
+      .filter( inBill => !inBillers || inBillers.length === 0 || inBillers.includes( inBill.biller ) )
+      .filter( inBill => !inCategories || inCategories.length === 0 || inCategories.some( inCategory => inBill.categories.includes( inCategory ) ) );
     this.getBillTemplates().forEach( inBill => {
-      RepeatRuleService.getRepeatDates( inBill.repeatRule, inStartDate, inStopDate ).forEach( inDueDate => {
+      RepeatRuleService.getRepeatDates( inBill.repeatRule, inRange.startDate, inRange.endDate  ).forEach( inDueDate => {
         const theBill = Object.assign( {}, inBill );
         theBill.id = uuid();
         theBill.dueDate = inDueDate;

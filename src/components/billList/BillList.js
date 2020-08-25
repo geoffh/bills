@@ -27,8 +27,6 @@ export default class BillList extends React.Component {
     constructor( inProps ) {
         super( inProps );
         this.state = {
-            billers: BillService.getBillers(),
-            categories: BillService.getCategories(),
             range: this.createInitialRange(),
             sortColumnId: 'dueDate', 
             sortColumnDirection: 'asc',
@@ -51,7 +49,7 @@ export default class BillList extends React.Component {
     }
 
     createRows() {
-        return BillService.getBillsForRange( this.state.range ).map( inBill => {
+        return BillService.getFilteredBills( this.props.filters ).map( inBill => {
             return (
                 <TableRow hover key={ inBill.id }>
                     <TableCell>{ inBill.biller }</TableCell>
