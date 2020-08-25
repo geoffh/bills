@@ -34,8 +34,8 @@ export default class BillList extends React.Component {
         };
     }
 
-    componentDidMount() { BillService.addListener( this.refresh ); }
-    componentWillUnmount() { BillService.removeListener( this.refresh ); }
+    componentDidMount() { BillService.addBillListener( this.refresh ); }
+    componentWillUnmount() { BillService.removeBillListener( this.refresh ); }
 
     createDelete =  inBill => { return () => BillService.removeBill( inBill ); };
     createEdit = inBill => { return () => { this.setState( { billToEdit: inBill } ); } };

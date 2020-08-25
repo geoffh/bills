@@ -21,7 +21,16 @@ export default class App extends React.Component {
         categories: [],
         billers: []
       }    
-    }
+    };
+    this.refreshCategories();
+    BillService.addCategoryListener( this.refreshCategories );
+    this.refreshBillers();
+    BillService.addBillerListener( this.refreshBillers );
+  }
+
+  componentWillUnmount() {
+    BillService.removeBillerListener( this.refreshBillers );
+    BillService.removeCategoryListener( this.refreshCategories );
   }
 
   createInitialRange = () => {
@@ -36,7 +45,7 @@ export default class App extends React.Component {
     return this.state.billAddVisible ?
       <BillAddEditDialog open onCancel = { this.onCloseBillAdd }
                         onClose = { this.onCloseBillAdd } onOk = { this.onBillAdd }
-                        bill = { BillService.createBill() } categories = { BillService.getCategories() }
+                        bill = { BillService.createBill() } categories = { this.categories }
                         dialogTitle = { billAddDialogTitle } dialogContentText = { billAddDialogContentText } okLabel = { billAddOkLabel }/> :
     null;
   }
@@ -44,11 +53,11 @@ export default class App extends React.Component {
   getFilters = () => {
     const theFilters = this.state.filters;
     let theBillers = theFilters.billers;
-    if ( theBillers && theBillers.length === BillService.getBillers().length ) {
+    if ( theBillers && theBillers.length === this.billers.length ) {
       theBillers = null;
     }
     let theCategories = theFilters.categories;
-    if ( theCategories && theCategories.length === BillService.getCategories().length ) {
+    if ( theCategories && theCategories.length === this.categories.length ) {
       theCategories = null;
     }
     return {
@@ -72,8 +81,8 @@ export default class App extends React.Component {
   onCloseBillAdd = () => { this.setState( { billAddVisible: false } ); };
   onCloseBillFilter = () => { this.setState( { billFilterVisible: false } ); };
 
-  onSelectAllBillers = inEvent => this.onSelectAllFilterItems( BillService.getBillers(), 'billers', inEvent );
-  onSelectAllCategories = inEvent => this.onSelectAllFilterItems( BillService.getCategories(), 'categories', inEvent );
+  onSelectAllBillers = inEvent => this.onSelectAllFilterItems( this.billers, 'billers', inEvent );
+  onSelectAllCategories = inEvent => this.onSelectAllFilterItems( this.categories, 'categories', inEvent );
   onSelectAllFilterItems = ( inItems, inSelectedItemsPropName, inEvent ) => {
     const theFilters = this.state.filters;
     theFilters[ inSelectedItemsPropName ] = inEvent.target.checked ? inItems.slice() : [];
@@ -94,6 +103,9 @@ export default class App extends React.Component {
     this.setState( { filters: theFilters } );
   };
 
+  refreshBillers = () => { this.billers = BillService.getBillers(); }
+  refreshCategories = () => { this.categories = BillService.getCategories(); }
+
   render() {
     const theRange = {
       startDate: this.state.filters.range.startDate,
@@ -101,11 +113,11 @@ export default class App extends React.Component {
       onChangeRange: this.onChangeRange
     };
     const theCategories = {
-      categories: BillService.getCategories(), selectedCategories: this.state.filters.categories,
+      categories: this.categories, selectedCategories: this.state.filters.categories,
       onSelectCategory: this.onSelectCategory, onSelectAllCategories: this.onSelectAllCategories
     };
     const theBillers = {
-      billers: BillService.getBillers(), selectedBillers: this.state.filters.billers,
+      billers: this.billers, selectedBillers: this.state.filters.billers,
       onSelectBiller: this.onSelectBiller, onSelectAllBillers: this.onSelectAllBillers
     };
     return (

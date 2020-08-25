@@ -5,7 +5,9 @@ import { RepeatRuleService } from './RepeatRuleService';
 const { localStorage } = window;
 
 const BillService = {
-  listeners : [],
+  billListeners : [],
+  billerListeners: [],
+  categoryListeners: [],
 
   addBill( inBill ) {
     const { getBills, setBills } = this.getBillFunctions( inBill );
@@ -14,7 +16,7 @@ const BillService = {
     setBills( theBills );
     this.addCategoriesFromBill( inBill );
     this.addBillerFromBill( inBill );
-    this.notifyListeners();
+    this.notifyBillListeners();
   },
 
   addBiller( inBiller ) {
@@ -23,6 +25,7 @@ const BillService = {
       if ( ! theBillers.includes( inBiller ) ) {
         theBillers.push( inBiller );
         this.setBillers( theBillers );
+        this.notifyBillerListeners();
       }
     }
   },
@@ -37,6 +40,7 @@ const BillService = {
       if ( ! theCategories.includes( inCategory ) ) {
         theCategories.push( inCategory );
         this.setCategories( theCategories );
+        this.notifyCategoryListeners();
       }
     }
   },
@@ -47,7 +51,9 @@ const BillService = {
     }
   },
 
-  addListener( inListener ) { this.listeners.push( inListener ); },
+  addBillListener( inListener ) { this.billListeners.push( inListener ); },
+  addBillerListener( inListener ) { this.billerListeners.push( inListener ); },
+  addCategoryListener( inListener ) { this.categoryListeners.push( inListener ); },
 
   createBill() {
     const theDueDate = new Date();
@@ -118,7 +124,10 @@ const BillService = {
 
   isBillTemplate( inBillTemplate ) { return inBillTemplate.repeatRule; },
 
-  notifyListeners() { this.listeners.forEach( inListener => inListener() ); },
+  notifyBillListeners() { this.notifyListeners( this.billListeners ); },
+  notifyBillerListeners() { this.notifyListeners( this.billerListeners ); },
+  notifyCategoryListeners() { this.notifyListeners( this.categoryListeners ); },
+  notifyListeners( inListeners ) { inListeners.forEach( inListener => inListener() ); },
 
   removeBill( inBill ) {
     const { getBills, setBills } = this.getBillFunctions( inBill );
@@ -128,14 +137,17 @@ const BillService = {
     if ( theIndex !== -1 ) {
       theBills.splice( theIndex, 1 );
       setBills( theBills );
-      this.notifyListeners();
+      this.notifyBillListeners();
     }
   },
 
-  removeListener( inListener ) {
-    const theIndex = this.listeners.indexOf( inListener );
+  removeBillListener( inListener ) { this.removeListener( this.billListeners, inListener ); },
+  removeBillerListener( inListener ) { this.removeListener( this.billerListeners, inListener ); },
+  removeCategoryListener( inListener ) { this.removeListener( this.categoryListeners, inListener ); },
+  removeListener( inListeners, inListener ) {
+    const theIndex = inListeners.indexOf( inListener );
     if ( theIndex !== -1 ) {
-      this.listeners.splice( theIndex, 1 );
+      inListeners.splice( theIndex, 1 );
     }
   },
 
@@ -176,7 +188,7 @@ const BillService = {
       setBills( theBills );
       this.addCategoriesFromBill( inBill );
       this.addBillerFromBill( inBill );
-      this.notifyListeners();
+      this.notifyBillListeners();
     }
   }
 };
