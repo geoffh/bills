@@ -61,6 +61,12 @@ export default class App extends React.Component {
     this.onCloseBillAdd();
   };
 
+  onChangeRange = inRange => {
+    const theFilters = this.state.filters;
+    theFilters.range = inRange;
+    this.setState( { filters: theFilters } );
+  };
+
   onClickBillAdd = () => { this.setState( { billAddVisible: true } ); }
   onClickBillFilter = () => { this.setState( { billFilterVisible: true } ); };
   onCloseBillAdd = () => { this.setState( { billAddVisible: false } ); };
@@ -89,6 +95,11 @@ export default class App extends React.Component {
   };
 
   render() {
+    const theRange = {
+      startDate: this.state.filters.range.startDate,
+      endDate: this.state.filters.range.endDate,
+      onChangeRange: this.onChangeRange
+    };
     const theCategories = {
       categories: BillService.getCategories(), selectedCategories: this.state.filters.categories,
       onSelectCategory: this.onSelectCategory, onSelectAllCategories: this.onSelectAllCategories
@@ -103,7 +114,7 @@ export default class App extends React.Component {
         <BillList filters = { this.getFilters() }/>
         { this.getBillAddEditDialog() }
         <BillFilter open = { this.state.billFilterVisible } onClose = { this.onCloseBillFilter }
-                    categories = { theCategories } billers = { theBillers }/>
+                    range = { theRange } categories = { theCategories } billers = { theBillers }/>
       </div>
     );
   }
