@@ -1,55 +1,49 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react'
 
-import Delete from '@material-ui/icons/Delete';
-import Edit from '@material-ui/icons/Edit';
-import IconButton from '@material-ui/core/IconButton';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableRow from '@material-ui/core/TableRow';
+import Delete from '@material-ui/icons/Delete'
+import Edit from '@material-ui/icons/Edit'
+import IconButton from '@material-ui/core/IconButton'
+import Table from '@material-ui/core/Table'
+import TableBody from '@material-ui/core/TableBody'
+import TableCell from '@material-ui/core/TableCell'
+import TableRow from '@material-ui/core/TableRow'
 
-import './BillList.css';
-import BillAddEditDialog from '../billAddEdit/BillAddEditDialog';
-import BillListHead from './BillListHead';
-import { BillService } from '../../services/BillService';
+import './BillList.css'
+import BillAddEditDialog from '../billAddEdit/BillAddEditDialog'
+import BillListHead from './BillListHead'
+import { BillService } from '../../services/BillService'
 
 const columnHeaders = [
     { columnId: 'biller', columnLabel: 'Biller' },
     { columnId: 'amount', columnLabel: 'Amount' },
     { columnId: 'dueDate', columnLabel: 'Due Date' }
-];
+]
 
-const billEditOkLabel = 'Save';
-const billEditDialogContentText = 'Fill in the details, click ' + billEditOkLabel + '.';
-const billEditDialogTitle = 'Change your bill';
+const billEditOkLabel = 'Save'
+const billEditDialogContentText = 'Fill in the details, click ' + billEditOkLabel + '.'
+const billEditDialogTitle = 'Change your bill'
 
-export default class BillList extends React.Component {
-    constructor( inProps ) {
-        super( inProps );
-        this.state = {
-            range: this.createInitialRange(),
-            sortColumnId: 'dueDate', 
-            sortColumnDirection: 'asc',
-            billToEdit: null
-        };
-    }
+export default function BillList( props ) {
+    const { filters } = props
+    const [ sortColumnId, setSortColumnId ] = useState( 'dueDate' )
+    const [ sortColumnDirection, setSortColumnDirection ] = useState( 'asc' )
+    const [ billToEdit, setBillToEdit ] = useState( null )
+    const [ refreshing, setRefreshing ] = useState( false )
 
-    componentDidMount() { BillService.addBillListener( this.refresh ); }
-    componentWillUnmount() { BillService.removeBillListener( this.refresh ); }
+    useEffect( () => {
+        BillService.addBillListener( refresh )
+        return () => BillService.removeBillListener( refresh )
+    }, [] )
 
-    createDelete =  inBill => { return () => BillService.removeBill( inBill ); };
-    createEdit = inBill => { return () => { this.setState( { billToEdit: inBill } ); } };
+    useEffect( () => {
+        setRefreshing( false )
+    }, [ refreshing ] )
 
-    createInitialRange() {
-        const theStartDate = new Date();
-        theStartDate.setMonth( theStartDate.getMonth() - 2 );
-        const theEndDate = new Date();
-        theEndDate.setMonth( theEndDate.getMonth() + 2 );
-        return { startDate: theStartDate, endDate: theEndDate }
-    }
+    function createDelete( inBill ) { return () => BillService.removeBill( inBill ) }
+    function createEdit( inBill ) { return () => setBillToEdit( inBill ) }
 
-    createRows() {
-        return BillService.getFilteredBills( this.props.filters ).map( inBill => {
+    function createRows() {
+        return BillService.getFilteredBills( filters ).map( inBill => {
             return (
                 <TableRow hover key={ inBill.id }>
                     <TableCell>{ inBill.biller }</TableCell>
@@ -57,58 +51,49 @@ export default class BillList extends React.Component {
                     <TableCell>
                         { inBill.dueDate.toLocaleDateString('en-IE') }
                         <span className="visibleOnHover">
-                            <IconButton onClick = { this.createEdit( inBill ) } size = "small" color = "inherit" aria-label = "edit"><Edit/></IconButton>
-                            { this.state.billToEdit ?
-                                <BillAddEditDialog open onCancel = { this.onCloseBillEditDialog }
-                                    onClose = { this.onCloseBillEditDialog } onOk = { this.onSaveBillEditDialog }
-                                    bill = { this.state.billToEdit }
+                            <IconButton onClick = { createEdit( inBill ) } size = "small" color = "inherit" aria-label = "edit"><Edit/></IconButton>
+                            { billToEdit ?
+                                <BillAddEditDialog open onCancel = { onCloseBillEditDialog }
+                                    onClose = { onCloseBillEditDialog } onOk = { onSaveBillEditDialog }
+                                    bill = { billToEdit }
                                     dialogTitle = { billEditDialogTitle } dialogContentText = { billEditDialogContentText } okLabel = { billEditOkLabel }/> :
                                 null
                             }
-                            <IconButton onClick = { this.createDelete( inBill ) } size = "small" color = "inherit" aria-label = "deleteBill"><Delete/></IconButton>
+                            <IconButton onClick = { createDelete( inBill ) } size = "small" color = "inherit" aria-label = "deleteBill"><Delete/></IconButton>
                         </span>
                     </TableCell>                   
                 </TableRow>
             )
-        } );
+        } )
     }
 
-    getTableSortLabelDirection( inColumnId ) {
-        let theSortTableDirection = 'asc';
-        if ( this.state.sortColumnId === inColumnId ) {
-            theSortTableDirection = this.state.sortColumnDirection === 'desc' ? 'desc' : 'asc'
-        }
-        return theSortTableDirection;
+    function onCloseBillEditDialog() { setBillToEdit(null) }
+
+    function onSaveBillEditDialog() {
+        BillService.updateBill( billToEdit )
+        setBillToEdit(null)
     }
 
-    onCloseBillEditDialog = () => { this.setState( { billToEdit: null } ); }
+    function refresh() { setRefreshing( true ) }
 
-    onSaveBillEditDialog = () => {
-        BillService.updateBill( this.state.billToEdit );
-        this.setState( { billToEdit: null } );
-    }
-
-    refresh = () => this.setState( { refreshing: true } );
-
-    sort = inColumnId => {
-        let theSortColumnDirection;
-        if ( inColumnId !== this.state.sortColumnId || this.state.sortColumnDirection === false ) {
-            theSortColumnDirection = 'asc';
+    function sort( inColumnId ) {
+        let theSortColumnDirection
+        if ( inColumnId !== sortColumnId || sortColumnDirection === false ) {
+            theSortColumnDirection = 'asc'
         } else {
-            theSortColumnDirection = this.state.sortColumnDirection === 'asc' ? 'desc' : false;
+            theSortColumnDirection = sortColumnDirection === 'asc' ? 'desc' : false
         }
-        const theColumnId = theSortColumnDirection !== false ? inColumnId : null;
-        this.setState( { sortColumnId: theColumnId, sortColumnDirection: theSortColumnDirection } );
+        const theColumnId = theSortColumnDirection !== false ? inColumnId : null
+        setSortColumnId( theColumnId )
+        setSortColumnDirection( theSortColumnDirection )
     }
-    
-    render() {
-        return (
-            <Table>
-                <BillListHead columnHeaders={ columnHeaders }
-                    sortColumnId={ this.state.sortColumnId } sortColumnDirection={ this.state.sortColumnDirection }
-                    onSort={ this.sort }/>
-                <TableBody>{ this.createRows() }</TableBody>
-            </Table>
-        )
-    }
-};
+
+    return (
+        <Table>
+            <BillListHead columnHeaders={ columnHeaders }
+                sortColumnId={ sortColumnId } sortColumnDirection={ sortColumnDirection }
+                onSort={ sort }/>
+            <TableBody>{ createRows() }</TableBody>
+        </Table>
+    )
+}

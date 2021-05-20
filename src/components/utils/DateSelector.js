@@ -1,18 +1,16 @@
-import React from 'react';
+import React from 'react'
 
-import DateFnsUtils from '@date-io/date-fns';
-import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
+import DateFnsUtils from '@date-io/date-fns'
+import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers'
 
-export default class DateSelector extends React.Component {
-    render() {
-        return (
-            <MuiPickersUtilsProvider utils={ DateFnsUtils }>
-                <KeyboardDatePicker { ...this.props }
-                                    format="dd/MM/yyyy"
-                                    variant="inline" autoOk
-                                    KeyboardButtonProps={ { 'aria-label': 'change date', } }
-                                    disableToolbar/>
-            </MuiPickersUtilsProvider>
-        )
-    }
-};
+export default function DateSelector( props ) {
+    return (
+        <MuiPickersUtilsProvider utils={ DateFnsUtils }>
+            <KeyboardDatePicker { ... props }
+                                format="dd/MM/yyyy"
+                                variant="inline" autoOk
+                                KeyboardButtonProps={ { 'aria-label': 'change date', } }
+                                disableToolbar/>
+        </MuiPickersUtilsProvider>
+    )
+}

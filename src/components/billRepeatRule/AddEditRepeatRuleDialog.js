@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import Box from '@material-ui/core/Box';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -19,20 +19,25 @@ import MonthlyByWeekDay from './MonthlyByWeekDay';
 import YearlyByMonthDay from './YearlyByMonthDay';
 import { RepeatRuleService } from '../../services/RepeatRuleService';
 
-export default class AddEditRepeatRuleDialog extends React.Component {
-    constructor( inProps ) {
-        super( inProps );
-        this.state = this.createInitialState( inProps.repeatRule );
-        this.monthlyStyle = { paddingBottom: '20px' };
-    }
+export default function AddEditRepeatRuleDialog( props ) {
+    const { open, dialogTitle, dialogContentText, okLabel } = props
+    const theInitialState = createInitialState( props.repeatRule )
+    const [ monthlyRuleType, setMonthlyRuleType ] = useState( theInitialState.monthlyRuleType )
+    const [ frequency, setFrequency ] = useState( theInitialState.frequency )
+    const [ interval, setInterval ] = useState( theInitialState.interval )
+    const [ monthlyByMonthDay, setMonthlyByMonthDay ] = useState( theInitialState.monthlyByMonthDay )
+    const [ monthlyByWeekDay, setMonthlyByWeekDay ] = useState( theInitialState.monthlyByWeekDay )
+    const [ yearlyByMonthDay, setYearlyByMonthDay ] = useState( theInitialState.yearlyByMonthDay )
+    const [ end, setEnd ] = useState( theInitialState.end )
+    const startDate = theInitialState.startDate
+    const monthlyStyle = { paddingBottom: '20px' };
 
-    createInitialState( inRepeatRule ) {
+    function createInitialState( inRepeatRule ) {
         const theRule = RepeatRuleService.createRuleFromRuleString( inRepeatRule );
         const theRuleType = RepeatRuleService.getRuleType( theRule );
         const theMonthlyRuleType = RepeatRuleService.ruleTypeMonthlyByWeekDay === theRuleType ?
             RepeatRuleService.ruleTypeMonthlyByWeekDay : RepeatRuleService.ruleTypeMonthlyByMonthDay;
         return {
-            ruleType: theRuleType,
             monthlyRuleType: theMonthlyRuleType,
             startDate: RepeatRuleService.getStartDate( theRule ),
             frequency: RepeatRuleService.getFrequency( theRule ),
@@ -44,79 +49,77 @@ export default class AddEditRepeatRuleDialog extends React.Component {
         };
     }
 
-    getMonthly() {
-        return RepeatRuleService.isMonthly( this.state.frequency ) ? (
-            <Paper elevation={0} style={ this.monthlyStyle }>
-                <RadioGroup name="monthly" value={ this.state.monthlyRuleType } onChange={ this.onChangeMonthlyRuleType }>
+    function getMonthly() {
+        return RepeatRuleService.isMonthly( frequency ) ? (
+            <Paper elevation={0} style={ monthlyStyle }>
+                <RadioGroup name="monthly" value={ monthlyRuleType } onChange={ onChangeMonthlyRuleType }>
                     <FormLabel>On the</FormLabel>
                     <Box className="monthlyBox">
                         <FormControlLabel value={ RepeatRuleService.ruleTypeMonthlyByMonthDay } control={ <Radio/> }/>
-                        <MonthlyByMonthDay monthday={ this.state.monthlyByMonthDay } onChange={ this.onChangeMonthlyByMonthDay } disabled={ ! this.isMonthlyByMonthDay() }/>
+                        <MonthlyByMonthDay monthday={ monthlyByMonthDay } onChange={ onChangeMonthlyByMonthDay } disabled={ ! isMonthlyByMonthDay() }/>
                     </Box>
                     <Box className="monthlyBox">
                         <FormControlLabel value={ RepeatRuleService.ruleTypeMonthlyByWeekDay } control={ <Radio/> }/>
-                        <MonthlyByWeekDay weekday={ this.state.monthlyByWeekDay } onChange={ this.onChangeMonthlyByWeekDay } disabled={ ! this.isMonthlyByWeekDay() }/>
+                        <MonthlyByWeekDay weekday={ monthlyByWeekDay } onChange={ onChangeMonthlyByWeekDay } disabled={ ! isMonthlyByWeekDay() }/>
                     </Box>
                 </RadioGroup>
             </Paper>
         ) : null;
     }
 
-    getYearly() {
-        return RepeatRuleService.isYearly( this.state.frequency ) ? (
-            <Paper elevation={0} style={ this.monthlyStyle }>
+    function getYearly() {
+        return RepeatRuleService.isYearly( frequency ) ? (
+            <Paper elevation={0} style={ monthlyStyle }>
                 <div>
                     <FormLabel>On the</FormLabel>
                 </div>
                 <div>
-                    <YearlyByMonthDay monthday={ this.state.yearlyByMonthDay } onChange={ this.onChangeYearlyByMonthDay }/>
+                    <YearlyByMonthDay monthday={ yearlyByMonthDay } onChange={ onChangeYearlyByMonthDay }/>
                 </div>
             </Paper>
         ) : null;
     }
 
-    isMonthlyByMonthDay() { return RepeatRuleService.ruleTypeMonthlyByMonthDay === this.state.monthlyRuleType; }
-    isMonthlyByWeekDay() { return RepeatRuleService.ruleTypeMonthlyByWeekDay === this.state.monthlyRuleType; }
+    function isMonthlyByMonthDay() { return RepeatRuleService.ruleTypeMonthlyByMonthDay === monthlyRuleType; }
+    function isMonthlyByWeekDay() { return RepeatRuleService.ruleTypeMonthlyByWeekDay === monthlyRuleType; }
 
-    onChangeEnd = inEnd => { this.setState( { end: inEnd } ); }
-    onChangeFrequency = inFrequency => { this.setState( { frequency: inFrequency } ); }
-    onChangeInterval = inInterval => { this.setState( { interval: inInterval } ); }
-    onChangeMonthlyByMonthDay = inMonthlyByMonthDay => { this.setState( { monthlyByMonthDay: inMonthlyByMonthDay } ) }
-    onChangeMonthlyByWeekDay = inMonthlyByWeekDay => { this.setState( { monthlyByWeekDay: inMonthlyByWeekDay } ); }
-    onChangeMonthlyRuleType = inEvent => { this.setState( { monthlyRuleType: inEvent.target.value } ); }
-    onChangeYearlyByMonthDay = inYearlyByMonthDay => { this.setState( { yearlyByMonthDay: inYearlyByMonthDay } ) };
+    function onChangeEnd( inEnd ) { setEnd( inEnd ) }
+    function onChangeFrequency( inFrequency ) { setFrequency( inFrequency ) }
+    function onChangeInterval( inInterval ) { setInterval( inInterval ) }
+    function onChangeMonthlyByMonthDay( inMonthlyByMonthDay ) { setMonthlyByMonthDay( inMonthlyByMonthDay ) }
+    function onChangeMonthlyByWeekDay( inMonthlyByWeekDay ) { setMonthlyByWeekDay( inMonthlyByWeekDay ) }
+    function onChangeMonthlyRuleType( inEvent ) { setMonthlyRuleType( inEvent.target.value ) }
+    function onChangeYearlyByMonthDay( inYearlyByMonthDay ) { setYearlyByMonthDay( inYearlyByMonthDay ) }
 
-    onOk = () => {
-        if ( ! this.props.onOk ) {
+    function onOk() {
+        if ( ! props.onOk ) {
             return;
         }
         let theRuleString;
-        if ( RepeatRuleService.isMonthly( this.state.frequency ) ) {
-            theRuleString =  RepeatRuleService.ruleTypeMonthlyByMonthDay === this.state.monthlyRuleType ?
-                RepeatRuleService.createMonthlyByMonthDayRuleString( this.state.startDate, this.state.interval, this.state.monthlyByMonthDay, this.state.end ) :
-                RepeatRuleService.createMonthlyByWeekDayRuleString( this.state.startDate, this.state.interval, this.state.monthlyByWeekDay, this.state.end );
+        if ( RepeatRuleService.isMonthly( frequency ) ) {
+            theRuleString =  RepeatRuleService.ruleTypeMonthlyByMonthDay === monthlyRuleType ?
+                RepeatRuleService.createMonthlyByMonthDayRuleString( startDate, interval, monthlyByMonthDay, end ) :
+                RepeatRuleService.createMonthlyByWeekDayRuleString( startDate, interval, monthlyByWeekDay, end );
         } else {
-            theRuleString = RepeatRuleService.createYearlyByMonthDayRuleString( this.state.startDate, this.state.interval, this.state.yearlyByMonthDay, this.state.end  );
+            theRuleString = RepeatRuleService.createYearlyByMonthDayRuleString( startDate, interval, yearlyByMonthDay, end  );
         }
-        this.props.onOk( theRuleString );
+        props.onOk( theRuleString );
     }
 
-    render() {
-        return (
-            <OkCancelDialog open={ this.props.open } onCancel={ this.props.onCancel }
-                            onClose={ this.props.onClose } onOk={ this.onOk }
-                            okLabel={ this.props.okLabel }>
-                <DialogTitle id="form-dialog-title">{ this.props.dialogTitle }</DialogTitle>
-                <DialogContent>
-                    <DialogContentText>{ this.props.dialogContentText }</DialogContentText>
-                    <FrequencyAndInterval frequency={ this.state.frequency } interval={ this.state.interval } onChangeFrequency={ this.onChangeFrequency } onChangeInterval={ this.onChangeInterval }/>
-                    <Paper elevation={0} style={{marginLeft: '10px' } }>
-                        { this.getMonthly() }
-                        { this.getYearly() }
-                        <End end={ this.state.end } onChange={ this.onChangeEnd }/>
-                    </Paper>
-                </DialogContent>
-            </OkCancelDialog>
-        )
-    }
+    return (
+        <OkCancelDialog open={ open } onCancel={ props.onCancel }
+                        onClose={ props.onClose } onOk={ onOk }
+                        okLabel={ okLabel }>
+            <DialogTitle id="form-dialog-title">{ dialogTitle }</DialogTitle>
+            <DialogContent>
+                <DialogContentText>{ dialogContentText }</DialogContentText>
+                <FrequencyAndInterval frequency={ frequency } interval={ interval } onChangeFrequency={ onChangeFrequency } onChangeInterval={ onChangeInterval }/>
+                <Paper elevation={0} style={ {marginLeft: '10px' } }>
+                    { getMonthly() }
+                    { getYearly() }
+                    <End end={ end } onChange={ onChangeEnd }/>
+                </Paper>
+            </DialogContent>
+        </OkCancelDialog>
+    )
 }

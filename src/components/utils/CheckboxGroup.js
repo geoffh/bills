@@ -1,39 +1,37 @@
-import React from 'react';
+import React from 'react'
 
-import Checkbox from '@material-ui/core/Checkbox';
-import FormControl from '@material-ui/core/FormControl';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import FormGroup from '@material-ui/core/FormGroup';
-import FormLabel from '@material-ui/core/FormLabel';
+import Checkbox from '@material-ui/core/Checkbox'
+import FormControl from '@material-ui/core/FormControl'
+import FormControlLabel from '@material-ui/core/FormControlLabel'
+import FormGroup from '@material-ui/core/FormGroup'
+import FormLabel from '@material-ui/core/FormLabel'
 
+export default function CheckboxGroup( props ) {
+    const { selectedItems, items, onSelectAll, onSelectItem, label } = props
 
-export default class CheckboxGroup extends React.Component {
-    isAllSelected = () => this.props.selectedItems && this.props.selectedItems.length === this.props.items.length;
-    isSelected = inItem => this.props.selectedItems && this.props.selectedItems.includes( inItem );
+    function isAllSelected() { return selectedItems && selectedItems.length === items.length }
+    function isSelected( inItem ) { return selectedItems && selectedItems.includes( inItem ) }
 
-    getAllCheckBox = () => {
-        return this.props.onSelectAll ?
-            <FormControlLabel key = { 'All' } label = { 'All' } control = { <Checkbox onChange = { this.props.onSelectAll } checked = { this.isAllSelected() } name = { 'All' }/> }/> :
-            null;
-    };
-
-    getCheckBoxes = () => {
-        const theItems = this.props.items;
-        return theItems && theItems.length > 0 ?
-            theItems.map( ( inItem, inIndex ) => 
-                <FormControlLabel key = { inItem + inIndex } label={ inItem } control = { <Checkbox  onChange = { this.props.onSelectItem } checked = { this.isSelected( inItem ) } name = { inItem } /> }/>
-            ) : null;
-    };
-
-    render() {
-        return (
-            <FormControl>
-                <FormLabel>{ this.props.label }</FormLabel>
-                    <FormGroup>
-                        { this.getAllCheckBox() }
-                        { this.getCheckBoxes() }
-                    </FormGroup>
-            </FormControl>
-        );
+    function getAllCheckBox() {
+        return onSelectAll ?
+            <FormControlLabel key = { 'All' } label = { 'All' } control = { <Checkbox onChange = { onSelectAll } checked = { isAllSelected() } name = { 'All' }/> }/> :
+            null
     }
+
+    function getCheckBoxes() {
+        return items && items.length > 0 ?
+            items.map( ( inItem, inIndex ) => 
+                <FormControlLabel key = { inItem + inIndex } label={ inItem } control = { <Checkbox  onChange = { onSelectItem } checked = { isSelected( inItem ) } name = { inItem } /> }/>
+            ) : null
+    }
+    
+    return (
+        <FormControl>
+            <FormLabel>{ label }</FormLabel>
+                <FormGroup>
+                    { getAllCheckBox() }
+                    { getCheckBoxes() }
+                </FormGroup>
+        </FormControl>
+    )
 }

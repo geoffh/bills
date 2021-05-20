@@ -1,20 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react'
 
-import ItemSelect from '../utils/ItemSelect';
-import { RepeatRuleService } from '../../services/RepeatRuleService';
+import ItemSelect from '../utils/ItemSelect'
+import { RepeatRuleService } from '../../services/RepeatRuleService'
 
-export default class MonthlyByMonthDay extends React.Component {
-    constructor( inProps ) {
-        super( inProps );
-        this.state = { monthday: inProps.monthday };
+export default function MonthlyByMonthDay( props ) {
+    const { onChange } = props
+    const [ monthday, setMonthday ] = useState( props.monthday )
+
+    function onChangeMonthDay( inEvent ) {
+        setMonthday( inEvent.target.value )
+        onChange && onChange( inEvent.target.value )
     }
 
-    onChangeMonthDay = inEvent => {
-        this.setState( { monthday: inEvent.target.value } );
-        this.props.onChange && this.props.onChange( inEvent.target.value );
-    }
-
-    render() {
-        return <ItemSelect { ...this.props } value={ this.state.monthday } onChange={ this.onChangeMonthDay } items={ RepeatRuleService.getDayNumberItems() }/>
-    }
-};
+    return <ItemSelect { ... props } value={ monthday } onChange={ onChangeMonthDay } items={ RepeatRuleService.getDayNumberItems() }/>
+}

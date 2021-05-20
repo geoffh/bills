@@ -1,37 +1,32 @@
-import React from 'react';
+import React, { useState } from 'react'
 
-import ItemSelect from '../utils/ItemSelect';
+import ItemSelect from '../utils/ItemSelect'
+import { RepeatRuleService } from '../../services/RepeatRuleService'
 
-import { RepeatRuleService } from '../../services/RepeatRuleService';
+export default function MonthlyByWeekDay( props ) {
+    const { onChange } = props
+    const [ weekday, setWeekday ] = useState( props.weekday )
+    const dayStyle = { marginLeft: '10px' }
 
-export default class MonthlyByWeekDay extends React.Component {
-    constructor( inProps ) {
-        super( inProps );
-        this.state = { weekday: inProps.weekday };
-        this.dayStyle = { marginLeft: '10px' };       
+    function onChangemonthlyByWeekDay( inWeekDay ) {
+        setWeekday( inWeekDay )
+        onChange && onChange( inWeekDay )
     }
 
-    onChange = inWeekDay => {
-        this.setState( { weekday: inWeekDay } );
-        this.props.onChange && this.props.onChange( inWeekDay );
+    function onChangeDay( inEvent ) {
+        const theWeekDay = { day: inEvent.target.value, occurrence: weekday.occurrence }
+        onChangemonthlyByWeekDay( theWeekDay )
     }
 
-    onChangeDay = inEvent => {
-        const theWeekDay = { day: inEvent.target.value, occurrence: this.state.weekday.occurrence };
-        this.onChange( theWeekDay );
+    function onChangeOccurrence( inEvent ) {
+        const theWeekDay = { day: weekday.day, occurrence: inEvent.target.value }
+        onChangemonthlyByWeekDay( theWeekDay )
     }
-
-    onChangeOccurrence = inEvent => {
-        const theWeekDay = { day: this.state.weekday.day, occurrence: inEvent.target.value };
-        this.onChange( theWeekDay );
-    }
-
-    render() {
-        return (
-            <>
-                <ItemSelect { ...this.props } value={ this.state.weekday.occurrence } onChange={ this.onChangeOccurrence } items={ RepeatRuleService.getOccurrenceItems() }/>
-                <ItemSelect { ...this.props } style={ this.dayStyle } value={ this.state.weekday.day } onChange={ this.onChangeDay } items={ RepeatRuleService.getDayItems() }/>
-            </>
-        );
-    }
-};
+    
+    return (
+        <>
+            <ItemSelect { ... props } value={ weekday.occurrence } onChange={ onChangeOccurrence } items={ RepeatRuleService.getOccurrenceItems() }/>
+            <ItemSelect { ... props } style={ dayStyle } value={ weekday.day } onChange={ onChangeDay } items={ RepeatRuleService.getDayItems() }/>
+        </>
+    )
+}

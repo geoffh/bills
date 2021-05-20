@@ -1,4 +1,4 @@
-import { RRule, RRuleSet, rrulestr } from 'rrule';
+import { RRule, RRuleSet, rrulestr } from 'rrule'
 
 const RepeatRuleService = {
     endTypeNever: 'endTypeNever',
@@ -64,12 +64,12 @@ const RepeatRuleService = {
         { value: -1, label: 'Last' }
     ],
 
-    createCount( inRule ) { return 12; },
+    createCount( inRule ) { return 12 },
     createUntil( inRule ) {
-        const theDate = new Date( this.getStartDate( inRule ) );
-        const theYear = theDate.getFullYear();
-        theDate.setFullYear( theYear + 1 );
-        return theDate;
+        const theDate = new Date( this.getStartDate( inRule ) )
+        const theYear = theDate.getFullYear()
+        theDate.setFullYear( theYear + 1 )
+        return theDate
     },
 
     createMonthlyByMonthDayRule( inStartDate, inInterval ) {
@@ -78,7 +78,7 @@ const RepeatRuleService = {
             freq: RRule.MONTHLY,
             bymonthday: inStartDate.getDate(),
             interval: inInterval
-        } );
+        } )
     },
 
     createMonthlyByWeekDayRule( inStartDate ) {
@@ -86,184 +86,184 @@ const RepeatRuleService = {
             dtstart: inStartDate,
             freq: RRule.MONTHLY,
             byweekday: [ RRule[ this.dayNames[ inStartDate.getDay() ] ].nth( this.getDayOccurrence( inStartDate ) ) ]
-        } );
+        } )
     },
 
     createMonthlyByMonthDay( inRule ) {
-        return inRule.options.dtstart.getDate();
+        return inRule.options.dtstart.getDate()
     },
 
     createMonthlyByMonthDayRuleString( inStartDate, inInterval, inMonthlyByMonthDay, inEnd ) {
-        return rrulestr( this.createRuleString( inStartDate, 'MONTHLY', inInterval, inEnd ) + ';BYMONTHDAY=' + inMonthlyByMonthDay ).toString();
+        return rrulestr( this.createRuleString( inStartDate, 'MONTHLY', inInterval, inEnd ) + ';BYMONTHDAY=' + inMonthlyByMonthDay ).toString()
     },
 
     createMonthlyByWeekDay( inRule ) {
-        let theDayOccurrence = this.getDayOccurrence( inRule.options.dtstart );
-        theDayOccurrence = theDayOccurrence < 5 ? theDayOccurrence : -1;
+        let theDayOccurrence = this.getDayOccurrence( inRule.options.dtstart )
+        theDayOccurrence = theDayOccurrence < 5 ? theDayOccurrence : -1
         return {
             day: this.dayItems[ inRule.options.dtstart.getDay() ].value,
             occurrence: theDayOccurrence
-        };
+        }
     },
 
     createMonthlyByWeekDayRuleString( inStartDate, inInterval, inMonthlyByWeekDay, inEnd ) {
-        return rrulestr( this.createRuleString( inStartDate, 'MONTHLY', inInterval, inEnd ) + ';BYDAY=' + inMonthlyByWeekDay.occurrence + inMonthlyByWeekDay.day ).toString();
+        return rrulestr( this.createRuleString( inStartDate, 'MONTHLY', inInterval, inEnd ) + ';BYDAY=' + inMonthlyByWeekDay.occurrence + inMonthlyByWeekDay.day ).toString()
     },
 
-    createRuleFromRuleString( inRuleString ) { return rrulestr( inRuleString ); },
+    createRuleFromRuleString( inRuleString ) { return rrulestr( inRuleString ) },
 
     createRuleSet( inTemplateRuleSet, inRule ) {
-        const theRuleSet = new RRuleSet();
-        theRuleSet.rrule( rrulestr( inRule ) );
+        const theRuleSet = new RRuleSet()
+        theRuleSet.rrule( rrulestr( inRule ) )
         if ( inTemplateRuleSet ) {
-            inTemplateRuleSet.exrules().forEach( inExRule => theRuleSet.exrule( inExRule ) );
-            inTemplateRuleSet.rdates().forEach( inRDate => theRuleSet.rdate( inRDate ) );
-            inTemplateRuleSet.exdates().forEach( inExDate => theRuleSet.exdate( inExDate ) );
+            inTemplateRuleSet.exrules().forEach( inExRule => theRuleSet.exrule( inExRule ) )
+            inTemplateRuleSet.rdates().forEach( inRDate => theRuleSet.rdate( inRDate ) )
+            inTemplateRuleSet.exdates().forEach( inExDate => theRuleSet.exdate( inExDate ) )
         }
-        return theRuleSet;
+        return theRuleSet
     },
 
     createRuleString( inStartDate, inFrequency, inInterval, inEnd ) {
-        const theEnd = this.createRuleStringEnd( inEnd );
+        const theEnd = this.createRuleStringEnd( inEnd )
         return 'DTSTART=' + this.dateToISOString( inStartDate ) + ';FREQ=' + inFrequency + ';INTERVAL=' + inInterval +
-            ( theEnd ? ';' + theEnd : '' );
+            ( theEnd ? ';' + theEnd : '' )
     },
 
     createRuleStringEnd( inEnd ) {
         if ( this.endTypeNever === inEnd.type ) {
-            return null;
+            return null
         }
-        return this.endTypeDate === inEnd.type ? 'UNTIL=' + this.dateToISOString( inEnd.until ) : 'COUNT=' + inEnd.count;
+        return this.endTypeDate === inEnd.type ? 'UNTIL=' + this.dateToISOString( inEnd.until ) : 'COUNT=' + inEnd.count
     },
 
-    createYearlyByMonthDay( inRule ) { return this.dateToYearlyByMonthDay( inRule.options.dtstart ); },
+    createYearlyByMonthDay( inRule ) { return this.dateToYearlyByMonthDay( inRule.options.dtstart ) },
 
     createYearlyByMonthDayRuleString( inStartDate, inInterval, inYearlyByMonthDay, inEnd ) {
-        return rrulestr( this.createRuleString( inStartDate, 'YEARLY', inInterval, inEnd ) + ';BYMONTH=' + ( inYearlyByMonthDay.month + 1 ) + ';BYMONTHDAY=' + inYearlyByMonthDay.day ).toString();
+        return rrulestr( this.createRuleString( inStartDate, 'YEARLY', inInterval, inEnd ) + ';BYMONTH=' + ( inYearlyByMonthDay.month + 1 ) + ';BYMONTHDAY=' + inYearlyByMonthDay.day ).toString()
     },
 
     dateToISOString( inDate ) {
         return inDate.getUTCFullYear() + this.pad( ( inDate.getUTCMonth() + 1 ) ) + this.pad( inDate.getUTCDate() ) +
             'T' + 
             this.pad( inDate.getUTCHours() ) + this.pad( inDate.getUTCMinutes() ) + this.pad( inDate.getUTCSeconds() ) +
-            'Z';
+            'Z'
     },
 
     dateToYearlyByMonthDay( inDate ) {
         return {
             month: inDate.getMonth(),
             day: inDate.getDate()
-        };
+        }
     },
 
-    getCount( inRule ) { return inRule.options.count; },
-    getDayItems() { return this.dayItems; },
-    getDayNumberItems() { return this.dayNumberItems; },
+    getCount( inRule ) { return inRule.options.count },
+    getDayItems() { return this.dayItems },
+    getDayNumberItems() { return this.dayNumberItems },
 
     getDayOccurrence( inDate ) {
-        let theDate = new Date( inDate );
-        const theMonth = theDate.getMonth();
-        let theWeekNumber = 0;
+        let theDate = new Date( inDate )
+        const theMonth = theDate.getMonth()
+        let theWeekNumber = 0
         while ( theMonth === theDate.getMonth() ) {
-            ++ theWeekNumber;
-            theDate.setDate( theDate.getDate() - 7 );
+            ++ theWeekNumber
+            theDate.setDate( theDate.getDate() - 7 )
         }
-        return theWeekNumber;
+        return theWeekNumber
     },
 
     getEnd( inRule ) {
-        const theEnd = { type: this.getEndType( inRule ) };
+        const theEnd = { type: this.getEndType( inRule ) }
         if ( theEnd.type === this.endTypeNever ) {
-            theEnd.count = this.createCount( inRule );
-            theEnd.until = this.createUntil( inRule );
+            theEnd.count = this.createCount( inRule )
+            theEnd.until = this.createUntil( inRule )
         } else if ( theEnd.type === this.endTypeDate ) {
-            theEnd.count = this.createCount( inRule );
-            theEnd.until = this.getUntil( inRule );
+            theEnd.count = this.createCount( inRule )
+            theEnd.until = this.getUntil( inRule )
         } else if ( theEnd.type === this.endTypeOccurrences ) {
-            theEnd.count = this.getCount( inRule );
-            theEnd.until = this.createUntil( inRule );
+            theEnd.count = this.getCount( inRule )
+            theEnd.until = this.createUntil( inRule )
         }
-        return theEnd;
+        return theEnd
     },
 
     getEndType( inRule ) {
-        let theType;
+        let theType
         if ( inRule.options.until ) {
-            theType = this.endTypeDate;
+            theType = this.endTypeDate
         } else if ( inRule.options.count ) {
-            theType = this.endTypeOccurrences;
+            theType = this.endTypeOccurrences
         } else {
-            theType = this.endTypeNever;
+            theType = this.endTypeNever
         }
-        return theType;
+        return theType
     },
 
-    getFrequency( inRule ) { return inRule.options.freq; },
-    getFrequencyItems( inPlural ) { return inPlural ? this.frequencyItemsPlural : this.frequencyItemsSingular; },
-    getInterval( inRule ) { return inRule.options.interval; },
-    getMonthItems() { return this.monthItems; },
-    getMonthlyByMonthDay( inRule ) { return this.isMonthlyByMonthDay( inRule ) ? inRule.options.bymonthday[ 0 ] : null; },
+    getFrequency( inRule ) { return inRule.options.freq },
+    getFrequencyItems( inPlural ) { return inPlural ? this.frequencyItemsPlural : this.frequencyItemsSingular },
+    getInterval( inRule ) { return inRule.options.interval },
+    getMonthItems() { return this.monthItems },
+    getMonthlyByMonthDay( inRule ) { return this.isMonthlyByMonthDay( inRule ) ? inRule.options.bymonthday[ 0 ] : null },
 
     getMonthlyByWeekDay( inRule ) {
         // RRule uses Monday as first day of week but dayItems starts with Sunday
         if ( ! this.isMonthlyByWeekDay( inRule ) ) {
-            return null;
+            return null
         }
-        let theDayIndex = inRule.options.bynweekday[ 0 ][ 0 ] + 1;
-        theDayIndex = theDayIndex === 7 ? 0 : theDayIndex;
-        return  { day: this.dayItems[ theDayIndex ].value, occurrence: inRule.options.bynweekday[ 0 ][ 1 ] };
+        let theDayIndex = inRule.options.bynweekday[ 0 ][ 0 ] + 1
+        theDayIndex = theDayIndex === 7 ? 0 : theDayIndex
+        return  { day: this.dayItems[ theDayIndex ].value, occurrence: inRule.options.bynweekday[ 0 ][ 1 ] }
     },
 
-    getOccurrenceItems() { return this.occurrenceItems; },
+    getOccurrenceItems() { return this.occurrenceItems },
 
     getRepeatDates( inRuleSet, inStartDate, inStopDate ) {
-        return inRuleSet.between( inStartDate, inStopDate );
+        return inRuleSet.between( inStartDate, inStopDate )
     },
 
     getRuleFromRuleSet( inRuleSet ) {
-        let theRule = null;
+        let theRule = null
         if ( inRuleSet ) {
-            const theRules = inRuleSet.rrules();
+            const theRules = inRuleSet.rrules()
             if ( theRules && theRules.length === 1 ) {
-                theRule = theRules[ 0 ];
+                theRule = theRules[ 0 ]
             }
         }
-        return theRule;
+        return theRule
     },
 
     getRuleType( inRule ) {
         return this.isYearly( inRule.options.freq ) ? this.ruleTypeYearlyByMonthDay :
-            this.isMonthlyByMonthDay( inRule ) ? this.ruleTypeMonthlyByMonthDay : this.ruleTypeMonthlyByWeekDay;
+            this.isMonthlyByMonthDay( inRule ) ? this.ruleTypeMonthlyByMonthDay : this.ruleTypeMonthlyByWeekDay
     },
 
-    getStartDate( inRule ) { return inRule.options.dtstart; },
-    getUntil( inRule ) { return inRule.options.until; },
+    getStartDate( inRule ) { return inRule.options.dtstart },
+    getUntil( inRule ) { return inRule.options.until },
 
     getYearlyByMonthDay( inRule ) {
         return this.isYearlyByMonthDay( inRule ) ? {
             month: inRule.options.bymonth - 1,
             day: inRule.options.bymonthday
-        } : null;
+        } : null
     },
 
-    isEndOnDate( inEndType ) { return this.endTypeDate === inEndType; },
-    isEndNever( inEndType ) { return this.endTypeNever === inEndType; },
-    isEndAfterOccurrences( inEndType ) { return this.endTypeOccurrences === inEndType; },
-    isMonthlyByMonthDay( inRule ) { return this.isMonthly( inRule.options.freq ) && inRule.options.bymonthday && inRule.options.bymonthday.length > 0; },
-    isMonthlyByWeekDay( inRule) { return this.isMonthly( inRule.options.freq ) && inRule.options.bynweekday && inRule.options.bynweekday.length > 0; },
-    isMonthly( inFrquency ) { return RRule.MONTHLY === inFrquency; },    
-    isYearly( inFrequency ) { return RRule.YEARLY === inFrequency; },
-    isYearlyByMonthDay( inRule ) { return this.isYearly( inRule.options.freq ) && inRule.options.bymonth && inRule.options.bymonthday; },
-    pad( inNumber ) { return inNumber < 10 ? '0' + inNumber : inNumber; },
-    parse( inRuleSetString ) { return inRuleSetString ? rrulestr( inRuleSetString, { forceset: true } ) : null; },
-    stringify( inRuleSet ) { return inRuleSet ? inRuleSet.toString() : null; },
+    isEndOnDate( inEndType ) { return this.endTypeDate === inEndType },
+    isEndNever( inEndType ) { return this.endTypeNever === inEndType },
+    isEndAfterOccurrences( inEndType ) { return this.endTypeOccurrences === inEndType },
+    isMonthlyByMonthDay( inRule ) { return this.isMonthly( inRule.options.freq ) && inRule.options.bymonthday && inRule.options.bymonthday.length > 0 },
+    isMonthlyByWeekDay( inRule) { return this.isMonthly( inRule.options.freq ) && inRule.options.bynweekday && inRule.options.bynweekday.length > 0 },
+    isMonthly( inFrquency ) { return RRule.MONTHLY === inFrquency },    
+    isYearly( inFrequency ) { return RRule.YEARLY === inFrequency },
+    isYearlyByMonthDay( inRule ) { return this.isYearly( inRule.options.freq ) && inRule.options.bymonth && inRule.options.bymonthday },
+    pad( inNumber ) { return inNumber < 10 ? '0' + inNumber : inNumber },
+    parse( inRuleSetString ) { return inRuleSetString ? rrulestr( inRuleSetString, { forceset: true } ) : null },
+    stringify( inRuleSet ) { return inRuleSet ? inRuleSet.toString() : null },
 
     yearlyByMonthDayToDate( inYearlyByMonthDay ) {
-        const theDate = new Date();
-        theDate.setMonth( inYearlyByMonthDay.month );
-        theDate.setDate( inYearlyByMonthDay.day );
-        return theDate;
+        const theDate = new Date()
+        theDate.setMonth( inYearlyByMonthDay.month )
+        theDate.setDate( inYearlyByMonthDay.day )
+        return theDate
     }
-};
+}
 
-export { RepeatRuleService };
+export { RepeatRuleService }
