@@ -10,10 +10,9 @@ const BillService = {
   categoryListeners: [],
 
   addBill( inBill ) {
-    const { getBills, setBills } = this.getBillFunctions( inBill )
-    const theBills = getBills()
+    const theBills = this.getBills()
     theBills.push( inBill )
-    setBills( theBills )
+    this.setBills( theBills )
     this.addCategoriesFromBill( inBill )
     this.addBillerFromBill( inBill )
     this.notifyBillListeners()
@@ -71,7 +70,6 @@ const BillService = {
       localStorage.billing = JSON.stringify( {
         categories: [],
         billers: [],
-        billTemplates: [],
         bills: []
       } )
     }
@@ -92,14 +90,6 @@ const BillService = {
 
   getCategories() { return this.getBilling().categories.sort() },
 
-  getBillFunctions( inBill ) {
-    return this.isBill( inBill ) ? 
-      { getBills: this.getBills.bind( this ), setBills: this.setBills.bind( this ) } : 
-      { getBills: this.getBillTemplates.bind( this ), setBills: this.setBillTemplates.bind( this ) }
-  },
-
-  getBillTemplates() { return this.getBilling().billTemplates },
-
   getBills() { return this.getBilling().bills },
 
   getFilteredBills( { range: inRange, billers: inBillers, categories: inCategories } ) {
@@ -118,21 +108,9 @@ const BillService = {
           theBills.push( theBill )
         } )
       } )
-      /* GEOFF
-      this.getBillTemplates().forEach( inBill => {
-      RepeatRuleService.getRepeatDates( inBill.repeatRule, inRange.startDate, inRange.endDate  ).forEach( inDueDate => {
-        const theBill = Object.assign( {}, inBill )
-        theBill.id = uuid()
-        theBill.dueDate = inDueDate
-        theBills.push( theBill )
-      } )
-    } ) */
     return theBills
   },
 
-  //GEOFF
-  //isBill( inBill ) { return ! this.isBillTemplate( inBill ) },
-  //isBillTemplate( inBillTemplate ) { return inBillTemplate.repeatRule },
   isBill(inBill) { return true },
   isBillTemplate(inBill) { return false },
 
@@ -142,13 +120,11 @@ const BillService = {
   notifyListeners( inListeners ) { inListeners.forEach( inListener => inListener() ) },
 
   removeBill( inBill ) {
-    const { getBills, setBills } = this.getBillFunctions( inBill )
-    const theBills = getBills()
-    
+    const theBills = this.getBills()    
     const theIndex = theBills.findIndex( theBill => theBill.id === inBill.id )
     if ( theIndex !== -1 ) {
       theBills.splice( theIndex, 1 )
-      setBills( theBills )
+      this.setBills( theBills )
       this.notifyBillListeners()
     }
   },
@@ -179,12 +155,6 @@ const BillService = {
     localStorage.billing = JSON.stringify( inBilling, ( inKey, inValue ) => inKey === 'repeatRule' ? RepeatRuleService.stringify( inValue ) : inValue )
   },
 
-  setBillTemplates( inBillTemplates ) {
-    const theBilling = this.getBilling()
-    theBilling.billTemplates = inBillTemplates
-    this.setBilling( theBilling )
-  },
-
   setBills( inBills ) {
     const theBilling = this.getBilling()
     theBilling.bills = inBills
@@ -192,12 +162,11 @@ const BillService = {
   },
 
   updateBill( inBill ) {
-    const { getBills, setBills } = this.getBillFunctions( inBill )
-    const theBills = getBills()    
+    const theBills = this.getBills()    
     const theIndex = theBills.findIndex( theBill => theBill.id === inBill.id )
     if ( theIndex !== -1 ) {
       theBills.splice( theIndex, 1, inBill )
-      setBills( theBills )
+      this.setBills( theBills )
       this.addCategoriesFromBill( inBill )
       this.addBillerFromBill( inBill )
       this.notifyBillListeners()
