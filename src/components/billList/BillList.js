@@ -10,6 +10,7 @@ import TableRow from '@material-ui/core/TableRow'
 
 import './BillList.css'
 import BillAddEditDialog from '../billAddEdit/BillAddEditDialog'
+import BillEditDeleteOptionsDialog from '../billDelete/BillEditDeleteOptionsDialog'
 import BillListHead from './BillListHead'
 import { BillService } from '../../services/BillService'
 
@@ -18,6 +19,10 @@ const columnHeaders = [
     { columnId: 'amount', columnLabel: 'Amount' },
     { columnId: 'dueDate', columnLabel: 'Due Date' }
 ]
+
+const billDeleteOptionsDialogOkLabel = 'Ok'
+const billDeleteOptionsDialogContentText = 'Select what you want to delete, click ' + billDeleteOptionsDialogOkLabel + '.'
+const billDeleteOptionsDialogTitle = 'Delete repeating bill'
 
 const billEditOkLabel = 'Save'
 const billEditDialogContentText = 'Fill in the details, click ' + billEditOkLabel + '.'
@@ -28,6 +33,7 @@ export default function BillList( props ) {
     const [ sortColumnId, setSortColumnId ] = useState( 'dueDate' )
     const [ sortColumnDirection, setSortColumnDirection ] = useState( 'asc' )
     const [ billToEdit, setBillToEdit ] = useState( null )
+    const [ billToDelete, setBillToDelete ] = useState( null )
     const [ refreshing, setRefreshing ] = useState( false )
 
     useEffect( () => {
@@ -39,7 +45,10 @@ export default function BillList( props ) {
         setRefreshing( false )
     }, [ refreshing ] )
 
-    function createDelete( inBill ) { return () => BillService.removeBill( inBill ) }
+    function createDelete( inBill ) {
+        return () => BillService.isBillTemplateInstance( inBill ) ? setBillToDelete( inBill ) : BillService.removeBill( inBill )
+    }
+    
     function createEdit( inBill ) { return () => setBillToEdit( inBill ) }
 
     function createRows() {
@@ -58,6 +67,12 @@ export default function BillList( props ) {
                                     bill = { billToEdit }
                                     dialogTitle = { billEditDialogTitle } dialogContentText = { billEditDialogContentText } okLabel = { billEditOkLabel }/> :
                                 null
+                            }                            
+                            { billToDelete ?
+                                <BillEditDeleteOptionsDialog open onCancel = { onCloseBillEditDeleteOptionsDialog }
+                                            onClose = { onCloseBillEditDeleteOptionsDialog } onOk = { onDeleteBill }
+                                            dialogTitle={ billDeleteOptionsDialogTitle } dialogContentText={ billDeleteOptionsDialogContentText }/> :
+                                null
                             }
                             <IconButton onClick = { createDelete( inBill ) } size = "small" color = "inherit" aria-label = "deleteBill"><Delete/></IconButton>
                         </span>
@@ -67,11 +82,17 @@ export default function BillList( props ) {
         } )
     }
 
-    function onCloseBillEditDialog() { setBillToEdit(null) }
+    function onCloseBillEditDeleteOptionsDialog() { setBillToDelete( null ) }
+    function onCloseBillEditDialog() { setBillToEdit( null ) }
+
+    function onDeleteBill( inDeleteOption ) {
+        BillService.removeBill( billToDelete, parseInt( inDeleteOption ) )
+        setBillToDelete( null )
+    }
 
     function onSaveBillEditDialog() {
         BillService.updateBill( billToEdit )
-        setBillToEdit(null)
+        setBillToEdit( null )
     }
 
     function refresh() { setRefreshing( true ) }

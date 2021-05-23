@@ -143,9 +143,9 @@ const RepeatRuleService = {
     },
 
     dateToISOString( inDate ) {
-        return inDate.getUTCFullYear() + this.pad( ( inDate.getUTCMonth() + 1 ) ) + this.pad( inDate.getUTCDate() ) +
+        return inDate.getUTCFullYear() + '' + this.pad( ( inDate.getUTCMonth() + 1 ) ) + '' + this.pad( inDate.getUTCDate() ) + '' +
             'T' + 
-            this.pad( inDate.getUTCHours() ) + this.pad( inDate.getUTCMinutes() ) + this.pad( inDate.getUTCSeconds() ) +
+            this.pad( inDate.getUTCHours() ) + '' + this.pad( inDate.getUTCMinutes() ) + '' + this.pad( inDate.getUTCSeconds() ) +
             'Z'
     },
 
@@ -216,7 +216,10 @@ const RepeatRuleService = {
 
     getOccurrenceItems() { return this.occurrenceItems },
 
-    getRepeatDates( inRuleSet, inStartDate, inStopDate ) {
+    getRepeatDates( inRuleSet, inExDates, inStartDate, inStopDate ) {
+        if ( inExDates ) {
+            inExDates.forEach( theExDate => inRuleSet.exdate( new Date( theExDate ) ) )
+        }
         return inRuleSet.between( inStartDate, inStopDate )
     },
 
@@ -256,6 +259,10 @@ const RepeatRuleService = {
     isYearlyByMonthDay( inRule ) { return this.isYearly( inRule.options.freq ) && inRule.options.bymonth && inRule.options.bymonthday },
     pad( inNumber ) { return inNumber < 10 ? '0' + inNumber : inNumber },
     parse( inRuleSetString ) { return inRuleSetString ? rrulestr( inRuleSetString, { forceset: true } ) : null },
+    setUntil( inRuleSet, inEndDate ) {
+        return this.parse( 
+            this.stringify( inRuleSet ) + ';' + this.createRuleStringEnd( { type: this.endTypeDate, until: inEndDate } ) )
+    },
     stringify( inRuleSet ) { return inRuleSet ? inRuleSet.toString() : null },
 
     yearlyByMonthDayToDate( inYearlyByMonthDay ) {

@@ -4,7 +4,17 @@ import { RepeatRuleService } from './RepeatRuleService'
 
 const { localStorage } = window
 
+const editDeleteOptionThisOccurence = 1
+const editDeleteOptionThisAndFutureOccurences = 2
+const editDeleteOptionAllOccurrences = 3
+
 const BillService = {
+  editDeleteOptionItems: [
+    { value: editDeleteOptionThisOccurence, label: "This bill"},
+    { value: editDeleteOptionThisAndFutureOccurences, label: "This and all future bills"},
+    { value: editDeleteOptionAllOccurrences, label: "All bills"}
+  ],
+
   billListeners : [],
   billerListeners: [],
   categoryListeners: [],
@@ -65,6 +75,8 @@ const BillService = {
     }
   },
 
+  getBillers() { return this.getBilling().billers.sort() },
+
   getBilling() {
     if ( ! localStorage.billing ) {
       localStorage.billing = JSON.stringify( {
@@ -86,11 +98,11 @@ const BillService = {
     } )
   },
 
-  getBillers() { return this.getBilling().billers.sort() },
+  getBills() { return this.getBilling().bills },
 
   getCategories() { return this.getBilling().categories.sort() },
 
-  getBills() { return this.getBilling().bills },
+  getEditDeleteOptionItems() { return this.editDeleteOptionItems },
 
   getFilteredBills( { range: inRange, billers: inBillers, categories: inCategories } ) {
     const theBills = this.getBills()
@@ -101,32 +113,64 @@ const BillService = {
       this.getBills()
       .filter( inBill => inBill.repeatRule )
       .forEach( inBill => {
-        RepeatRuleService.getRepeatDates( inBill.repeatRule, inRange.startDate, inRange.endDate  ).forEach( inDueDate => {
+        RepeatRuleService.getRepeatDates( inBill.repeatRule, inBill.exDates, inRange.startDate, inRange.endDate  ).forEach( inDueDate => {
           const theBill = Object.assign( {}, inBill )
-          theBill.id = uuid()
           theBill.dueDate = inDueDate
+          theBill.id = uuid()
+          theBill.repeatRule = null
+          theBill.templateId = inBill.id          
           theBills.push( theBill )
         } )
       } )
     return theBills
   },
 
-  isBill(inBill) { return true },
-  isBillTemplate(inBill) { return false },
+  isBill( inBill ) { return ! this.isBillTemplate( inBill ) },
+  isBillTemplate( inBill ) { return inBill.repeatRule },
+  isBillTemplateInstance( inBill ) { return inBill.templateId },
 
   notifyBillListeners() { this.notifyListeners( this.billListeners ) },
   notifyBillerListeners() { this.notifyListeners( this.billerListeners ) },
   notifyCategoryListeners() { this.notifyListeners( this.categoryListeners ) },
   notifyListeners( inListeners ) { inListeners.forEach( inListener => inListener() ) },
 
-  removeBill( inBill ) {
-    const theBills = this.getBills()    
-    const theIndex = theBills.findIndex( theBill => theBill.id === inBill.id )
-    if ( theIndex !== -1 ) {
-      theBills.splice( theIndex, 1 )
-      this.setBills( theBills )
-      this.notifyBillListeners()
+  removeBill( inBill, removeOption ) {
+    if ( this.isBillTemplateInstance( inBill ) ) {
+      this.removeBillTemplateInstance( inBill, removeOption )
+    } else {
+      const theBills = this.getBills()    
+      const theIndex = theBills.findIndex( theBill => theBill.id === inBill.id )
+      if ( theIndex !== -1 ) {
+        theBills.splice( theIndex, 1 )
+        this.setBills( theBills )
+        this.notifyBillListeners()
+      }
     }
+  },
+
+  removeBillTemplateInstance( inBillTemplateInstace, removeOption ) {
+    const theBills = this.getBills()
+    const theIndex = theBills.findIndex( theBill => theBill.id === inBillTemplateInstace.templateId )
+    if ( theIndex !== -1 ) {
+      const theTemplate = theBills[ theIndex ]
+      let setBills = true
+      if ( removeOption === editDeleteOptionThisOccurence ) {
+        const theExDates = theTemplate.exDates ? theTemplate.exDates : []
+        theExDates.push( inBillTemplateInstace.dueDate )
+        theTemplate.exDates = theExDates
+      } else if ( removeOption === editDeleteOptionThisAndFutureOccurences ) {
+        let theEndDate = new Date( inBillTemplateInstace.dueDate )
+        theEndDate.setDate( theEndDate.getDate() - 1 )
+        theTemplate.repeatRule = RepeatRuleService.setUntil( theTemplate.repeatRule, theEndDate )
+      } else if ( removeOption === editDeleteOptionAllOccurrences ) {
+        this.removeBill( theTemplate )
+        setBills = false
+      }
+      if ( setBills ) {
+        this.setBills( theBills )
+      }
+      this.notifyBillListeners()
+   }
   },
 
   removeBillListener( inListener ) { this.removeListener( this.billListeners, inListener ) },
@@ -157,7 +201,9 @@ const BillService = {
 
   setBills( inBills ) {
     const theBilling = this.getBilling()
-    theBilling.bills = inBills
+    if ( inBills ) {
+      theBilling.bills = inBills
+    }
     this.setBilling( theBilling )
   },
 
