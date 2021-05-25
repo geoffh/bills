@@ -117,7 +117,7 @@ const BillService = {
           const theBill = Object.assign( {}, inBill )
           theBill.dueDate = inDueDate
           theBill.id = uuid()
-          theBill.repeatRule = null
+          theBill.repeatRule = inBill.repeatRule
           theBill.templateId = inBill.id          
           theBills.push( theBill )
         } )
@@ -125,8 +125,8 @@ const BillService = {
     return theBills
   },
 
-  isBill( inBill ) { return ! this.isBillTemplate( inBill ) },
-  isBillTemplate( inBill ) { return inBill.repeatRule },
+  isBill( inBill ) { return ! inBill.repeatRule && ! inBill.templateId  },
+  isBillTemplate( inBill ) { return inBill.repeatRule && ! inBill.templateId },
   isBillTemplateInstance( inBill ) { return inBill.templateId },
 
   notifyBillListeners() { this.notifyListeners( this.billListeners ) },

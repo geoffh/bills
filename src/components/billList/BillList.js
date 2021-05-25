@@ -61,25 +61,33 @@ export default function BillList( props ) {
                         { inBill.dueDate.toLocaleDateString('en-IE') }
                         <span className="visibleOnHover">
                             <IconButton onClick = { createEdit( inBill ) } size = "small" color = "inherit" aria-label = "edit"><Edit/></IconButton>
-                            { billToEdit ?
-                                <BillAddEditDialog open onCancel = { onCloseBillEditDialog }
-                                    onClose = { onCloseBillEditDialog } onOk = { onSaveBillEditDialog }
-                                    bill = { billToEdit }
-                                    dialogTitle = { billEditDialogTitle } dialogContentText = { billEditDialogContentText } okLabel = { billEditOkLabel }/> :
-                                null
-                            }                            
-                            { billToDelete ?
-                                <BillEditDeleteOptionsDialog open onCancel = { onCloseBillEditDeleteOptionsDialog }
-                                            onClose = { onCloseBillEditDeleteOptionsDialog } onOk = { onDeleteBill }
-                                            dialogTitle={ billDeleteOptionsDialogTitle } dialogContentText={ billDeleteOptionsDialogContentText }/> :
-                                null
-                            }
+                            { getBillAddEditDialog() }                            
                             <IconButton onClick = { createDelete( inBill ) } size = "small" color = "inherit" aria-label = "deleteBill"><Delete/></IconButton>
+                            { getBillEditDeleteOptionsDialog() }
                         </span>
                     </TableCell>                   
                 </TableRow>
             )
         } )
+    }
+
+    function getBillAddEditDialog() {
+        return  billToEdit ?
+            (
+                <BillAddEditDialog open onCancel = { onCloseBillEditDialog }
+                                   onClose = { onCloseBillEditDialog } onOk = { onSaveBillEditDialog }
+                                   bill = { billToEdit }
+                                   dialogTitle = { billEditDialogTitle } dialogContentText = { billEditDialogContentText } okLabel = { billEditOkLabel }/>
+            ) : null
+    }
+
+    function getBillEditDeleteOptionsDialog() {
+        return billToDelete ?
+            (
+                <BillEditDeleteOptionsDialog open onCancel = { onCloseBillEditDeleteOptionsDialog }
+                                             onClose = { onCloseBillEditDeleteOptionsDialog } onOk = { onDeleteBill }
+                                             dialogTitle={ billDeleteOptionsDialogTitle } dialogContentText={ billDeleteOptionsDialogContentText }/>
+            ) : null
     }
 
     function onCloseBillEditDeleteOptionsDialog() { setBillToDelete( null ) }

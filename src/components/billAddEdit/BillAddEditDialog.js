@@ -7,6 +7,7 @@ import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import TextField from '@material-ui/core/TextField'
 
+import BillEditDeleteOptionsDialog from '../billDelete/BillEditDeleteOptionsDialog'
 import { BillService } from '../../services/BillService'
 import DateSelector from '../utils/DateSelector'
 import OkCancelDialog from '../utils/OkCancelDialog'
@@ -20,6 +21,7 @@ export default function BillAddEditDialog( props ) {
     const [ dueDate, setDueDate ] = useState( bill.dueDate )
     const [ repeatRule, setRepeatRule ] = useState( bill.repeatRule )
     const [ categories, setCategories ] = useState( bill.categories )
+    const [ showBillEditDeleteOptionsDialog, setShowBillEditDeleteOptions ] = useState( false )
 
     function createDeleteCategory( inCategory ) {
         return () => deleteCategory( inCategory )
@@ -34,6 +36,16 @@ export default function BillAddEditDialog( props ) {
     }
 
     function getBillCategories() { return categories ? categories : [] }
+
+    function getBillEditDeleteOptionsDialog() {
+        return showBillEditDeleteOptionsDialog ?
+            (
+                <BillEditDeleteOptionsDialog open onCancel = { onCloseBillEditDeleteOptionsDialog }
+                                             onClose = { onCloseBillEditDeleteOptionsDialog } onOk = { onBillEditDeleteOptionsDialogOk }
+                                             dialogTitle={ dialogTitle } dialogContentText={ dialogContentText }/>
+            ) : null
+    }
+
     function getCategoriesRenderInput( inParams ) { return <TextField { ... inParams } label="Choose a category for your bill"/> }
 
     function getCategoriesRenderTags( inCategories, getTagProperties ) {
@@ -42,7 +54,12 @@ export default function BillAddEditDialog( props ) {
         ) )
     }
 
-    function getKnownCategories() { return BillService.getCategories() } 
+    function getKnownCategories() { return BillService.getCategories() }
+
+    function onBillEditDeleteOptionsDialogOk( inBillEditDeleteOption ) {
+        onOk( null, inBillEditDeleteOption )
+    }
+
     function onChangeAmount( inEvent ) { setAmount( inEvent.target.value ) }
     function onChangeBiller( inEvent ) { setBiller( inEvent.target.value ) }
 
@@ -55,10 +72,15 @@ export default function BillAddEditDialog( props ) {
     function onChangeDueDate( inDueDate ) { setDueDate( inDueDate ) }
     function onChangeNotificationDate( inNotificationDate ) { setNotificationDate( inNotificationDate ) }
     function onChangeRepeatRule( inRepeatRule ) { setRepeatRule( inRepeatRule ) }
+    function onCloseBillEditDeleteOptionsDialog() { setShowBillEditDeleteOptions( false )}
 
-    function onOk() {
-        updateBill()
-        props.onOk && props.onOk( bill )
+    function onOk( inEvent, inBillEditDeleteOption ) {
+        if ( BillService.isBillTemplateInstance( bill ) && ! inBillEditDeleteOption ) {
+            setShowBillEditDeleteOptions( true )
+        } else {
+            updateBill()
+            props.onOk && props.onOk( bill, inBillEditDeleteOption )
+        }
     }
 
     function updateBill() {
@@ -71,6 +93,7 @@ export default function BillAddEditDialog( props ) {
             categories: categories
         } )
     }
+    
     return (
         <OkCancelDialog open={ open } onCancel={ props.onCancel }
                         onClose={ props.onClose } onOk={ onOk }
@@ -89,6 +112,7 @@ export default function BillAddEditDialog( props ) {
                                 renderInput = { getCategoriesRenderInput }
                                 renderTags = { getCategoriesRenderTags }
                                 autoComplete filterSelectedOptions freeSolo multiple/>
+                { getBillEditDeleteOptionsDialog() }
             </DialogContent>
         </OkCancelDialog>
     )
