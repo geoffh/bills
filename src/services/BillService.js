@@ -2,67 +2,64 @@ import { v4 as uuid } from 'uuid'
 
 import { RepeatRuleService } from './RepeatRuleService'
 
-const { localStorage } = window
-
-const editDeleteOptionThisOccurence = 1
-const editDeleteOptionThisAndFutureOccurences = 2
-const editDeleteOptionAllOccurrences = 3
-
-const BillService = {
-  editDeleteOptionItems: [
+var BillService = (function () {
+  const { localStorage } = window
+  const editDeleteOptionThisOccurence = 1
+  const editDeleteOptionThisAndFutureOccurences = 2
+  const editDeleteOptionAllOccurrences = 3
+  const editDeleteOptionItems = [
     { value: editDeleteOptionThisOccurence, label: "This bill"},
     { value: editDeleteOptionThisAndFutureOccurences, label: "This and all future bills"},
     { value: editDeleteOptionAllOccurrences, label: "All bills"}
-  ],
+  ]
+  const billListeners = []
+  const billerListeners = []
+  const categoryListeners = []
 
-  billListeners : [],
-  billerListeners: [],
-  categoryListeners: [],
-
-  addBill( inBill ) {
-    const theBills = this.getBills()
+  function addBill( inBill ) {
+    const theBills = getBills()
     theBills.push( inBill )
-    this.setBills( theBills )
-    this.addCategoriesFromBill( inBill )
-    this.addBillerFromBill( inBill )
-    this.notifyBillListeners()
-  },
+    setBills( theBills )
+    addCategoriesFromBill( inBill )
+    addBillerFromBill( inBill )
+    notifyBillListeners()
+  }
 
-  addBiller( inBiller ) {
+  function addBiller( inBiller ) {
     if ( inBiller ) {
-      const theBillers = this.getBillers()
+      const theBillers = getBillers()
       if ( ! theBillers.includes( inBiller ) ) {
         theBillers.push( inBiller )
-        this.setBillers( theBillers )
-        this.notifyBillerListeners()
+        setBillers( theBillers )
+        notifyBillerListeners()
       }
     }
-  },
+  }
 
-  addBillerFromBill( inBill ) { this.addBiller( inBill.biller ) },
+  function addBillerFromBill( inBill ) { addBiller( inBill.biller ) }
 
-  addCategory( inCategory ) {
+  function addCategory( inCategory ) {
     if ( inCategory ) {
-      const theCategories = this.getCategories()
+      const theCategories = getCategories()
       if ( ! theCategories.includes( inCategory ) ) {
         theCategories.push( inCategory )
-        this.setCategories( theCategories )
-        this.notifyCategoryListeners()
+        setCategories( theCategories )
+        notifyCategoryListeners()
       }
     }
-  },
+  }
 
-  addCategoriesFromBill( inBill ) {
+  function addCategoriesFromBill( inBill ) {
     if ( inBill.categories ) {
-      inBill.categories.forEach( inCategory => this.addCategory( inCategory ) )
+      inBill.categories.forEach( inCategory => addCategory( inCategory ) )
     }
-  },
+  }
 
-  addBillListener( inListener ) { this.billListeners.push( inListener ) },
-  addBillerListener( inListener ) { this.billerListeners.push( inListener ) },
-  addCategoryListener( inListener ) { this.categoryListeners.push( inListener ) },
+  function addBillListener( inListener ) { billListeners.push( inListener ) }
+  function addBillerListener( inListener ) { billerListeners.push( inListener ) }
+  function addCategoryListener( inListener ) { categoryListeners.push( inListener ) }
 
-  createBill() {
+  function createBill() {
     const theDueDate = new Date()
     theDueDate.setDate( theDueDate.getDate() + 2 * 7 )
     return {
@@ -73,11 +70,11 @@ const BillService = {
       id: uuid(),
       notificationDate: new Date()
     }
-  },
+  }
 
-  getBillers() { return this.getBilling().billers.sort() },
+  function getBillers() { return getBilling().billers.sort() }
 
-  getBilling() {
+  function getBilling() {
     if ( ! localStorage.billing ) {
       localStorage.billing = JSON.stringify( {
         categories: [],
@@ -96,21 +93,19 @@ const BillService = {
       }
       return theValue
     } )
-  },
+  }
 
-  getBills() { return this.getBilling().bills },
+  function getBills() { return getBilling().bills }
+  function getCategories() { return getBilling().categories.sort() }
+  function getEditDeleteOptionItems() { return editDeleteOptionItems }
 
-  getCategories() { return this.getBilling().categories.sort() },
-
-  getEditDeleteOptionItems() { return this.editDeleteOptionItems },
-
-  getFilteredBills( { range: inRange, billers: inBillers, categories: inCategories } ) {
-    const theBills = this.getBills()
+  function getFilteredBills( { range: inRange, billers: inBillers, categories: inCategories } ) {
+    const theBills = getBills()
       .filter( inBill => !inBill.repeatRule )
       .filter( inBill => inBill.dueDate >= inRange.startDate && inBill.dueDate <= inRange.endDate )
       .filter( inBill => !inBillers || inBillers.length === 0 || inBillers.includes( inBill.biller ) )
       .filter( inBill => !inCategories || inCategories.length === 0 || inCategories.some( inCategory => inBill.categories.includes( inCategory ) ) )
-      this.getBills()
+      getBills()
       .filter( inBill => inBill.repeatRule )
       .forEach( inBill => {
         RepeatRuleService.getRepeatDates( inBill.repeatRule, inBill.exDates, inRange.startDate, inRange.endDate  ).forEach( inDueDate => {
@@ -123,33 +118,33 @@ const BillService = {
         } )
       } )
     return theBills
-  },
+  }
 
-  isBill( inBill ) { return ! inBill.repeatRule && ! inBill.templateId  },
-  isBillTemplate( inBill ) { return inBill.repeatRule && ! inBill.templateId },
-  isBillTemplateInstance( inBill ) { return inBill.templateId },
+  function isBill( inBill ) { return ! inBill.repeatRule && ! inBill.templateId  }
+  function isBillTemplate( inBill ) { return inBill.repeatRule && ! inBill.templateId }
+  function isBillTemplateInstance( inBill ) { return inBill.templateId }
 
-  notifyBillListeners() { this.notifyListeners( this.billListeners ) },
-  notifyBillerListeners() { this.notifyListeners( this.billerListeners ) },
-  notifyCategoryListeners() { this.notifyListeners( this.categoryListeners ) },
-  notifyListeners( inListeners ) { inListeners.forEach( inListener => inListener() ) },
+  function notifyBillListeners() { notifyListeners( billListeners ) }
+  function notifyBillerListeners() { notifyListeners( billerListeners ) }
+  function notifyCategoryListeners() { notifyListeners( categoryListeners ) }
+  function notifyListeners( inListeners ) { inListeners.forEach( inListener => inListener() ) }
 
-  removeBill( inBill, removeOption ) {
-    if ( this.isBillTemplateInstance( inBill ) ) {
-      this.removeBillTemplateInstance( inBill, removeOption )
+  function removeBill( inBill, removeOption ) {
+    if ( isBillTemplateInstance( inBill ) ) {
+      removeBillTemplateInstance( inBill, removeOption )
     } else {
-      const theBills = this.getBills()    
+      const theBills = getBills()    
       const theIndex = theBills.findIndex( theBill => theBill.id === inBill.id )
       if ( theIndex !== -1 ) {
         theBills.splice( theIndex, 1 )
-        this.setBills( theBills )
-        this.notifyBillListeners()
+        setBills( theBills )
+        notifyBillListeners()
       }
     }
-  },
+  }
 
-  removeBillTemplateInstance( inBillTemplateInstace, removeOption ) {
-    const theBills = this.getBills()
+  function removeBillTemplateInstance( inBillTemplateInstace, removeOption ) {
+    const theBills = getBills()
     const theIndex = theBills.findIndex( theBill => theBill.id === inBillTemplateInstace.templateId )
     if ( theIndex !== -1 ) {
       const theTemplate = theBills[ theIndex ]
@@ -163,61 +158,82 @@ const BillService = {
         theEndDate.setDate( theEndDate.getDate() - 1 )
         theTemplate.repeatRule = RepeatRuleService.setUntil( theTemplate.repeatRule, theEndDate )
       } else if ( removeOption === editDeleteOptionAllOccurrences ) {
-        this.removeBill( theTemplate )
+        removeBill( theTemplate )
         setBills = false
       }
       if ( setBills ) {
-        this.setBills( theBills )
+        setBills( theBills )
       }
-      this.notifyBillListeners()
+      notifyBillListeners()
    }
-  },
+  }
 
-  removeBillListener( inListener ) { this.removeListener( this.billListeners, inListener ) },
-  removeBillerListener( inListener ) { this.removeListener( this.billerListeners, inListener ) },
-  removeCategoryListener( inListener ) { this.removeListener( this.categoryListeners, inListener ) },
-  removeListener( inListeners, inListener ) {
+  function removeBillListener( inListener ) { removeListener( billListeners, inListener ) }
+  function removeBillerListener( inListener ) { removeListener( billerListeners, inListener ) }
+  function removeCategoryListener( inListener ) { removeListener( categoryListeners, inListener ) }
+  function removeListener( inListeners, inListener ) {
     const theIndex = inListeners.indexOf( inListener )
     if ( theIndex !== -1 ) {
       inListeners.splice( theIndex, 1 )
     }
-  },
+  }
 
-  setBillers( inBillers ) {
-    const theBilling = this.getBilling()
+  function setBillers( inBillers ) {
+    const theBilling = getBilling()
     theBilling.billers = inBillers
-    this.setBilling( theBilling )
-  },
+    setBilling( theBilling )
+  }
 
-  setCategories( inCategories ) {
-    const theBilling = this.getBilling()
+  function setCategories( inCategories ) {
+    const theBilling = getBilling()
     theBilling.categories = inCategories
-    this.setBilling( theBilling )
-  },
+    setBilling( theBilling )
+  }
 
-  setBilling( inBilling ) {
+  function setBilling( inBilling ) {
     localStorage.billing = JSON.stringify( inBilling, ( inKey, inValue ) => inKey === 'repeatRule' ? RepeatRuleService.stringify( inValue ) : inValue )
-  },
+  }
 
-  setBills( inBills ) {
-    const theBilling = this.getBilling()
+  function setBills( inBills ) {
+    const theBilling = getBilling()
     if ( inBills ) {
       theBilling.bills = inBills
     }
-    this.setBilling( theBilling )
-  },
+    setBilling( theBilling )
+  }
 
-  updateBill( inBill ) {
-    const theBills = this.getBills()    
+  function updateBill( inBill ) {
+    const theBills = getBills()    
     const theIndex = theBills.findIndex( theBill => theBill.id === inBill.id )
     if ( theIndex !== -1 ) {
       theBills.splice( theIndex, 1, inBill )
-      this.setBills( theBills )
-      this.addCategoriesFromBill( inBill )
-      this.addBillerFromBill( inBill )
-      this.notifyBillListeners()
+      setBills( theBills )
+      addCategoriesFromBill( inBill )
+      addBillerFromBill( inBill )
+      notifyBillListeners()
     }
   }
-}
+ 
+  return {
+    addBill: addBill,
+    addBillListener: addBillListener,
+    addBillerListener: addBillerListener,
+    addCategoryListener: addCategoryListener,
+    createBill: createBill,
+    getBillers: getBillers,
+    getCategories: getCategories,
+    getEditDeleteOptionItems: getEditDeleteOptionItems,
+    getFilteredBills: getFilteredBills,
+    isBill: isBill,
+    isBillTemplate: isBillTemplate,
+    isBillTemplateInstance: isBillTemplateInstance,
+    removeBill: removeBill,
+    removeBillListener: removeBillListener,
+    removeBillerListener: removeBillerListener,
+    removeCategoryListener: removeCategoryListener,
+    updateBill: updateBill
+  };
+ 
+})();
 
 export { BillService }
