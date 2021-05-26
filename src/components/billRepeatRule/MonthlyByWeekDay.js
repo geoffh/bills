@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 
 import ItemSelect from '../utils/ItemSelect'
-import { RepeatRuleService } from '../../services/RepeatRuleService'
+import RepeatRuleService from '../../services/RepeatRuleService'
 
 export default function MonthlyByWeekDay( props ) {
     const { onChange } = props

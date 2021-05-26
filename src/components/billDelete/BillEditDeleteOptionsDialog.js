@@ -7,7 +7,7 @@ import FormControl from '@material-ui/core/FormControl'
 
 import OkCancelDialog from '../utils/OkCancelDialog'
 import ItemRadioGroup from '../utils/ItemRadioGroup'
-import { BillService } from '../../services/BillService'
+import BillService from '../../services/BillService'
 
 export default function BillEditDeleteOptionsDialog( props ) {
     const { open, name, label, dialogTitle, dialogContentText } = props

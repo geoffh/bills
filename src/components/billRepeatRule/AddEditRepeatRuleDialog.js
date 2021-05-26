@@ -17,7 +17,7 @@ import FrequencyAndInterval from './FrequencyAndInterval';
 import MonthlyByMonthDay from './MonthlyByMonthDay';
 import MonthlyByWeekDay from './MonthlyByWeekDay';
 import YearlyByMonthDay from './YearlyByMonthDay';
-import { RepeatRuleService } from '../../services/RepeatRuleService';
+import RepeatRuleService from '../../services/RepeatRuleService';
 
 export default function AddEditRepeatRuleDialog( props ) {
     const { open, dialogTitle, dialogContentText, okLabel } = props

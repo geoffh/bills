@@ -1,8 +1,8 @@
 import { v4 as uuid } from 'uuid'
 
-import { RepeatRuleService } from './RepeatRuleService'
+import RepeatRuleService from './RepeatRuleService'
 
-var BillService = (function () {
+const BillService = ( function() {
   const { localStorage } = window
   const editDeleteOptionThisOccurence = 1
   const editDeleteOptionThisAndFutureOccurences = 2
@@ -232,8 +232,7 @@ var BillService = (function () {
     removeBillerListener: removeBillerListener,
     removeCategoryListener: removeCategoryListener,
     updateBill: updateBill
-  };
- 
-})();
+  }; 
+} )();
 
-export { BillService }
+export default BillService

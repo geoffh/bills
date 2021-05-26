@@ -9,7 +9,7 @@ import RadioGroup from '@material-ui/core/RadioGroup'
 import TextField from '@material-ui/core/TextField'
 
 import DateSelector from '../utils/DateSelector'
-import { RepeatRuleService } from '../../services/RepeatRuleService'
+import RepeatRuleService from '../../services/RepeatRuleService'
 
 export default function End( props ) {
     const { onChange } = props

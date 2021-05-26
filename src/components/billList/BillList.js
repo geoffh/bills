@@ -12,7 +12,7 @@ import './BillList.css'
 import BillAddEditDialog from '../billAddEdit/BillAddEditDialog'
 import BillEditDeleteOptionsDialog from '../billDelete/BillEditDeleteOptionsDialog'
 import BillListHead from './BillListHead'
-import { BillService } from '../../services/BillService'
+import BillService from '../../services/BillService'
 
 const columnHeaders = [
     { columnId: 'biller', columnLabel: 'Biller' },

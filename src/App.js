@@ -4,7 +4,7 @@ import BillAddEditDialog from './components/billAddEdit/BillAddEditDialog'
 import BillAppBar from './components/billAppBar/BillAppBar'
 import BillFilter from './components/billFilter/BillFilter'
 import BillList from './components/billList/BillList'
-import { BillService } from './services/BillService'
+import BillService from './services/BillService'
 
 const billAddOkLabel = 'Add Bill'
 const billAddDialogContentText = 'Fill in the details, click ' + billAddOkLabel + '.'

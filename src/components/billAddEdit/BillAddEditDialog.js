@@ -8,7 +8,7 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import TextField from '@material-ui/core/TextField'
 
 import BillEditDeleteOptionsDialog from '../billDelete/BillEditDeleteOptionsDialog'
-import { BillService } from '../../services/BillService'
+import BillService from '../../services/BillService'
 import DateSelector from '../utils/DateSelector'
 import OkCancelDialog from '../utils/OkCancelDialog'
 import RepeatRule from '../billRepeatRule/RepeatRule'

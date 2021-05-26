@@ -7,7 +7,7 @@ import FormGroup from '@material-ui/core/FormGroup'
 import TextField from '@material-ui/core/TextField'
 
 import ItemSelect from '../utils/ItemSelect'
-import { RepeatRuleService } from '../../services/RepeatRuleService'
+import RepeatRuleService from '../../services/RepeatRuleService'
 
 export default function FrequencyAndInterval( props ) {
     const [ frequency, setFrequency ] = useState( props.frequency )

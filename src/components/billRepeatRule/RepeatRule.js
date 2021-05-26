@@ -4,7 +4,7 @@ import InputLabel from '@material-ui/core/InputLabel'
 
 import AddEditRepeatRuleDialog from './AddEditRepeatRuleDialog'
 import ItemSelect from '../utils/ItemSelect'
-import { RepeatRuleService } from '../../services/RepeatRuleService'
+import RepeatRuleService from '../../services/RepeatRuleService'
 
 const okLabel = 'Save'
 const dialogContentText = 'Fill in the details, click ' + okLabel + '.'
