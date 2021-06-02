@@ -1,5 +1,6 @@
 import { v4 as uuid } from 'uuid'
 
+import BillSortService from './BillSortService';
 import RepeatRuleService from './RepeatRuleService'
 
 const BillService = ( function() {
@@ -72,6 +73,13 @@ const BillService = ( function() {
     }
   }
 
+  function filterBills( inBills, { inRange, inBillers, inCategories } ) {
+    return inBills
+      .filter( bill => !inRange || ( bill.dueDate >= inRange.startDate && bill.dueDate <= inRange.endDate ) )
+      .filter( bill => !inBillers || inBillers.length === 0 || inBillers.includes( bill.biller ) )
+      .filter( bill => !inCategories || inCategories.length === 0 || inCategories.some( inCategory => bill.inCategories.includes( inCategory ) ) )
+  }
+
   function getBillers() { return getBilling().billers.sort() }
 
   function getBilling() {
@@ -95,28 +103,34 @@ const BillService = ( function() {
     } )
   }
 
-  function getBills() { return getBilling().bills }
+  function getBills( inFilter ) {
+    const theBills = getBilling().bills
+    return inFilter == null ? theBills : theBills.filter( inFilter )
+  }
+
+  function getBillTemplateInstances( { range, billers, categories } ) {
+    const theBillTemplateInstances = []
+    const theBillTemplates = filterBills( getBills( isBillTemplate ), { billers, categories } )
+    theBillTemplates.forEach( inBillTemplate => {
+        RepeatRuleService.getRepeatDates( inBillTemplate.repeatRule, inBillTemplate.exDates, range.startDate, range.endDate  ).forEach( inDueDate => {
+          const theBill = Object.assign( {}, inBillTemplate )
+          theBill.dueDate = inDueDate
+          theBill.id = uuid()
+          theBill.repeatRule = inBillTemplate.repeatRule
+          theBill.templateId = inBillTemplate.id          
+          theBillTemplateInstances.push( theBill )
+        } )
+      } )
+    return theBillTemplateInstances
+  }
+
   function getCategories() { return getBilling().categories.sort() }
   function getEditDeleteOptionItems() { return editDeleteOptionItems }
 
-  function getFilteredBills( { range: inRange, billers: inBillers, categories: inCategories } ) {
-    const theBills = getBills()
-      .filter( inBill => !inBill.repeatRule )
-      .filter( inBill => inBill.dueDate >= inRange.startDate && inBill.dueDate <= inRange.endDate )
-      .filter( inBill => !inBillers || inBillers.length === 0 || inBillers.includes( inBill.biller ) )
-      .filter( inBill => !inCategories || inCategories.length === 0 || inCategories.some( inCategory => inBill.categories.includes( inCategory ) ) )
-      getBills()
-      .filter( inBill => inBill.repeatRule )
-      .forEach( inBill => {
-        RepeatRuleService.getRepeatDates( inBill.repeatRule, inBill.exDates, inRange.startDate, inRange.endDate  ).forEach( inDueDate => {
-          const theBill = Object.assign( {}, inBill )
-          theBill.dueDate = inDueDate
-          theBill.id = uuid()
-          theBill.repeatRule = inBill.repeatRule
-          theBill.templateId = inBill.id          
-          theBills.push( theBill )
-        } )
-      } )
+  function getBillsFilteredAndSorted( sortOptions, filterOptions ) {
+    const theBills = filterBills( getBills( isBill ), filterOptions )
+    theBills.push( ...getBillTemplateInstances( filterOptions ) )
+    BillSortService.sort( theBills, sortOptions )
     return theBills
   }
 
@@ -223,7 +237,7 @@ const BillService = ( function() {
     getBillers: getBillers,
     getCategories: getCategories,
     getEditDeleteOptionItems: getEditDeleteOptionItems,
-    getFilteredBills: getFilteredBills,
+    getBills: getBillsFilteredAndSorted,
     isBill: isBill,
     isBillTemplate: isBillTemplate,
     isBillTemplateInstance: isBillTemplateInstance,
@@ -232,7 +246,7 @@ const BillService = ( function() {
     removeBillerListener: removeBillerListener,
     removeCategoryListener: removeCategoryListener,
     updateBill: updateBill
-  }; 
-} )();
+  }
+} )()
 
 export default BillService

@@ -13,6 +13,7 @@ import BillAddEditDialog from '../billAddEdit/BillAddEditDialog'
 import BillEditDeleteOptionsDialog from '../billDelete/BillEditDeleteOptionsDialog'
 import BillListHead from './BillListHead'
 import BillService from '../../services/BillService'
+import BillSortService from '../../services/BillSortService'
 
 const columnHeaders = [
     { columnId: 'biller', columnLabel: 'Biller' },
@@ -31,7 +32,7 @@ const billEditDialogTitle = 'Change your bill'
 export default function BillList( props ) {
     const { filters } = props
     const [ sortColumnId, setSortColumnId ] = useState( 'dueDate' )
-    const [ sortColumnDirection, setSortColumnDirection ] = useState( 'asc' )
+    const [ sortColumnDirection, setSortColumnDirection ] = useState( BillSortService.sortAscending )
     const [ billToEdit, setBillToEdit ] = useState( null )
     const [ billToDelete, setBillToDelete ] = useState( null )
     const [ refreshing, setRefreshing ] = useState( false )
@@ -52,7 +53,8 @@ export default function BillList( props ) {
     function createEdit( inBill ) { return () => setBillToEdit( inBill ) }
 
     function createRows() {
-        return BillService.getFilteredBills( filters ).map( inBill => {
+        const theSortOptions = { sortColumnId: sortColumnId, sortColumnDirection: sortColumnDirection }
+        return BillService.getBills( theSortOptions, filters ).map( inBill => {
             return (
                 <TableRow hover key={ inBill.id }>
                     <TableCell>{ inBill.biller }</TableCell>
@@ -108,9 +110,9 @@ export default function BillList( props ) {
     function sort( inColumnId ) {
         let theSortColumnDirection
         if ( inColumnId !== sortColumnId || sortColumnDirection === false ) {
-            theSortColumnDirection = 'asc'
+            theSortColumnDirection = BillSortService.sortAscending
         } else {
-            theSortColumnDirection = sortColumnDirection === 'asc' ? 'desc' : false
+            theSortColumnDirection = sortColumnDirection === BillSortService.sortAscending ? BillSortService.sortDescending : false
         }
         const theColumnId = theSortColumnDirection !== false ? inColumnId : null
         setSortColumnId( theColumnId )

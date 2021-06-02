@@ -312,6 +312,6 @@ const RepeatRuleService = ( function() {
         stringify: stringify,
         yearlyByMonthDayToDate: yearlyByMonthDayToDate
     }
-} )();
+} )()
 
 export default RepeatRuleService
